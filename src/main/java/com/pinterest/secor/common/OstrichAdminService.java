@@ -19,16 +19,21 @@ package com.pinterest.secor.common;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-import com.pinterest.secor.util.StatsUtil;
-import com.twitter.ostrich.admin.*;
-import com.twitter.util.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import scala.Option;
 import scala.collection.Map$;
 import scala.collection.immutable.List;
 import scala.collection.immutable.List$;
 import scala.util.matching.Regex;
+
+import com.pinterest.secor.util.StatsUtil;
+import com.twitter.ostrich.admin.AdminServiceFactory;
+import com.twitter.ostrich.admin.CustomHttpHandler;
+import com.twitter.ostrich.admin.RuntimeEnvironment;
+import com.twitter.ostrich.admin.StatsFactory;
+import com.twitter.util.Duration;
 
 /**
  * OstrichAdminService initializes export of metrics to Ostrich.
@@ -40,9 +45,9 @@ public class OstrichAdminService {
             .getLogger(OstrichAdminService.class);
     private final int mPort;
 
-    public OstrichAdminService(int port) {
-        this.mPort = port;
-    }
+	public OstrichAdminService(int port) {
+		this.mPort = port;
+	}
 
     public void start() {
         Duration[] defaultLatchIntervals = { Duration
@@ -63,7 +68,7 @@ public class OstrichAdminService {
                     "unknown");
             LOG.info("build.properties build_revision: {}",
                     properties.getProperty("build_revision", "unknown"));
-            StatsUtil.setLabel("secor.build_revision", buildRevision);
+			StatsUtil.setRawLabel("build_revision", buildRevision);
         } catch (Throwable t) {
             LOG.error("Failed to load properties from build.properties", t);
         }

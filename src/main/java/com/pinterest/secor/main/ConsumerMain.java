@@ -16,6 +16,11 @@
  */
 package com.pinterest.secor.main;
 
+import java.util.LinkedList;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.pinterest.secor.common.OstrichAdminService;
 import com.pinterest.secor.common.SecorConfig;
 import com.pinterest.secor.consumer.Consumer;
@@ -59,6 +64,8 @@ public class ConsumerMain {
             logFileDeleter.deleteOldLogs();
 
             RateLimitUtil.configure(config);
+			config.publishConfToOstrich();
+
             Thread.UncaughtExceptionHandler handler = new Thread.UncaughtExceptionHandler() {
                 public void uncaughtException(Thread thread, Throwable exception) {
                     LOG.error("Thread " + thread + " failed", exception);

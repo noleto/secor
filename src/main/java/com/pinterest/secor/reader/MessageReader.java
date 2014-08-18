@@ -97,13 +97,7 @@ public class MessageReader {
             topicPartitions.append(topicPartition.getTopic() + '/'
                     + topicPartition.getPartition());
         }
-        StatsUtil
-                .setLabel("secor.topic_partitions", topicPartitions.toString());
-
-        StatsUtil.setLabel(
-                String.format("secor.reader.last.offset.%s.%s",
-                        message.getTopic(), message.getKafkaPartition()),
-                String.valueOf(message.getOffset()));
+        StatsUtil.setLabel("secor.topic_partitions", topicPartitions.toString());
     }
 
     private ConsumerConfig createConsumerConfig() throws UnknownHostException {
@@ -156,6 +150,9 @@ public class MessageReader {
         TopicPartition topicPartition = new TopicPartition(message.getTopic(),
                 message.getKafkaPartition());
         updateAccessTime(topicPartition);
+
+		StatsUtil.setLabel(topicPartition, "reader_last_offset",
+				String.valueOf(message.getOffset()));
 
         LOG.trace("read message [{}]", message);
         exportStats(message);

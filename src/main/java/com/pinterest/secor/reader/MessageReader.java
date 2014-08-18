@@ -55,7 +55,7 @@ public class MessageReader {
     private final SecorConfig mConfig;
     private final OffsetTracker mOffsetTracker;
     private final ConsumerConnector mConsumerConnector;
-    private final ConsumerIterator mIterator;
+    private final ConsumerIterator<byte[], byte[]> mIterator;
     private final HashMap<TopicPartition, Long> mLastAccessTime;
 
     public MessageReader(SecorConfig config, OffsetTracker offsetTracker)
@@ -78,9 +78,10 @@ public class MessageReader {
     private void updateAccessTime(TopicPartition topicPartition) {
         long now = System.currentTimeMillis() / 1000L;
         mLastAccessTime.put(topicPartition, now);
-        Iterator iterator = mLastAccessTime.entrySet().iterator();
+        Iterator<Map.Entry<TopicPartition, Long>> iterator = mLastAccessTime
+                .entrySet().iterator();
         while (iterator.hasNext()) {
-            Map.Entry pair = (Map.Entry) iterator.next();
+            Map.Entry<TopicPartition, Long> pair = iterator.next();
             long lastAccessTime = (Long) pair.getValue();
             if (now - lastAccessTime > mConfig.getTopicPartitionForgetSeconds()) {
                 iterator.remove();
@@ -97,7 +98,8 @@ public class MessageReader {
             topicPartitions.append(topicPartition.getTopic() + '/'
                     + topicPartition.getPartition());
         }
-        StatsUtil.setLabel("secor.topic_partitions", topicPartitions.toString());
+        StatsUtil
+                .setLabel("secor.topic_partitions", topicPartitions.toString());
     }
 
     private ConsumerConfig createConsumerConfig() throws UnknownHostException {
@@ -151,8 +153,8 @@ public class MessageReader {
                 message.getKafkaPartition());
         updateAccessTime(topicPartition);
 
-		StatsUtil.setLabel(topicPartition, "reader_last_offset",
-				String.valueOf(message.getOffset()));
+        StatsUtil.setLabel(topicPartition, "reader_last_offset",
+                String.valueOf(message.getOffset()));
 
         LOG.trace("read message [{}]", message);
         exportStats(message);

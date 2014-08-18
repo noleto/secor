@@ -1,6 +1,7 @@
 # Pinterest Secor
 
 Secor is a service persisting [Kafka] logs to [Amazon S3].
+This fork provides the ability to customize the Writer. For instance, it's is useful  if you don't want to be dependent on Hadoop SequenceFile format (see custom Write below).
 
 ## Key features
   - **strong consistency**: as long as [Kafka] is not dropping messages (e.g., due to aggresive cleanup policy) before Secor is able to read them, it is guaranteed that each message will be saved in exacly one [S3] file. This property is not compromized by the notorious temporal inconsisteny of [S3] caused by the [eventual consistency] model,
@@ -12,6 +13,7 @@ Secor is a service persisting [Kafka] logs to [Amazon S3].
   - **monitoring**: metrics tracking various performace properties are exposed through [Ostrich] and optionaly exported to [OpenTSDB],
   - **customizability**: external log message parser may be loaded by updating the configuration,
   - **Qubole interface**: Secor connects to [Qubole] to add finalized output partitions to Hive tables.
+  - **custom Write**: original [Pinterest Secor](https://github.com/pinterest/secor) relies on the Hadoop sequence files for storage. By now, property `secor.message.writer.class` defines the kind of storage. By default, `HadoopSequenceFileWriter` is used. We ship another class,`PlanTextGzippedWriter` which storages text message in gzipped format.
 
 ## Setup Guide
 
@@ -86,6 +88,11 @@ Progress monitor exports offset consumption lags per topic partition to [OpenTSD
 java -ea -Dlog4j.configuration=log4j.prod.properties -Dconfig=secor.prod.backup.properties -cp "secor-0.1-SNAPSHOT.jar:lib/*" com.pinterest.secor.main.ProgressMonitorMain
 ```
 
+## Develop on Eclipse
+
+The project relies on Apache Maven. So, use Eclipse to import an existing Maven project.
+Ensure to build the project once and then add `target/generated-sources/thrift/gen-java` as source folder. Otherwise Eclipse will complain about genarated classes. 
+
 ## Detailed design
 
 Design details are available in [DESIGN.md](DESIGN.md).
@@ -101,10 +108,12 @@ Secor is distributed under [Apache License, Version 2.0](http://www.apache.org/l
   * [Andy Kramolisch](https://github.com/andykram)
   * [Brenden Matthews](https://github.com/brndnmtthws)
   * [Lucas Zago](https://github.com/zago)
+  * [Leonardo Noleto](https://github.com/noleto) - this fork
 
 ## Help
 
 If you have any questions or comments, you can reach us at [secor-users@googlegroups.com](secor-users@googlegroups.com)
+Please feel free to drop me a line if you have questions/suggestions at [noleto.leonardo@gmail.com](noleto.leonardo@gmail.com)
 
 [Kafka]:http://kafka.apache.org/
 [Amazon S3]:http://aws.amazon.com/s3/

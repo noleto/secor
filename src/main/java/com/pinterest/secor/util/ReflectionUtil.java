@@ -16,13 +16,14 @@
  */
 package com.pinterest.secor.util;
 
-import com.pinterest.secor.common.SecorConfig;
-
 import java.lang.reflect.Constructor;
 
+import com.pinterest.secor.common.SecorConfig;
+
 /**
- * ReflectionUtil implements utility methods to construct objects of classes specified by name.
- *
+ * ReflectionUtil implements utility methods to construct objects of classes
+ * specified by name.
+ * 
  * @author Pawel Garbacki (pawel@pinterest.com)
  */
 public class ReflectionUtil {
@@ -31,6 +32,7 @@ public class ReflectionUtil {
         return clazz.getConstructor().newInstance();
     }
 
+   
     public static Object createMessageParser(String className,
                                              SecorConfig config) throws Exception {
         Class<?> clazz = Class.forName(className);
@@ -47,4 +49,11 @@ public class ReflectionUtil {
         }
         throw new IllegalArgumentException("Class not found " + className);
     }
+
+	public static Object createStorageFactory(String className,
+			SecorConfig config) throws Exception {
+		Class<?> clazz = Class.forName(className);
+
+		return clazz.newInstance();
+	}
 }

@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.pinterest.secor.common.LogFilePath;
+import com.pinterest.secor.common.SecorConfig;
 import com.pinterest.secor.storage.StorageFactory;
 import com.pinterest.secor.storage.Writer;
 
@@ -13,6 +14,10 @@ public class PlainTextGzippedStorageFactory implements StorageFactory {
 
     private static final Logger LOG = LoggerFactory
             .getLogger(PlainTextGzippedStorageFactory.class);
+
+    public PlainTextGzippedStorageFactory(SecorConfig config) {
+        // nothing here
+    }
 
     @Override
     public Writer createWriter(LogFilePath path) throws IOException {

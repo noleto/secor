@@ -70,12 +70,6 @@ public class MessageWriter {
                     + topicPartition.getPartition());
 
             mFileRegistry.deleteTopicPartition(topicPartition);
-
-            // the committed offset has changed so we have to update tracker.
-            long zookeeperComittedOffsetCount = mZookeeperConnector
-                    .getCommittedOffsetCount(topicPartition);
-            mOffsetTracker.setCommittedOffsetCount(topicPartition,
-                    zookeeperComittedOffsetCount);
         }
         mOffsetTracker.setLastSeenOffset(topicPartition, message.getOffset());
     }
@@ -95,8 +89,8 @@ public class MessageWriter {
         Writer writer = mFileRegistry.getOrCreateWriter(mStorageFactory, path);
         writer.append(message);
 
-		StatsUtil.setLabel(topicPartition, "writer_last_offset",
-				String.valueOf(message.getOffset()));
+        StatsUtil.setLabel(topicPartition, "writer_last_offset",
+                String.valueOf(message.getOffset()));
 
         LOG.trace("appended message " + message + " to file "
                 + path.getLogFilePath() + ".  File length "

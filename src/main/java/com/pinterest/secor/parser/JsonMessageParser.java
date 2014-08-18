@@ -22,8 +22,8 @@ import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
 
 /**
- * JsonMessageParser extracts timestamp field (specified by 'message.timestamp.name')
- * from JSON data and partitions data by date.
+ * JsonMessageParser extracts timestamp field (specified by
+ * 'message.timestamp.name') from JSON data and partitions data by date.
  */
 public class JsonMessageParser extends TimestampedMessageParser {
     public JsonMessageParser(SecorConfig config) {
@@ -31,20 +31,25 @@ public class JsonMessageParser extends TimestampedMessageParser {
     }
 
     @Override
-    public long extractTimestampMillis(final Message message) throws ClassCastException {
-        JSONObject jsonObject = (JSONObject) JSONValue.parse(message.getPayload());
+    public long extractTimestampMillis(final Message message)
+            throws ClassCastException {
+        JSONObject jsonObject = (JSONObject) JSONValue.parse(message
+                .getPayload());
         if (jsonObject != null) {
-            Object fieldValue = jsonObject.get(mConfig.getMessageTimestampName());
+            Object fieldValue = jsonObject.get(mConfig
+                    .getMessageTimestampName());
             if (fieldValue != null) {
                 long timestamp = 0;
                 if (fieldValue instanceof Number) {
                     timestamp = ((Number) fieldValue).longValue();
                 } else {
-                    // Sadly, I don't know of a better way to support all numeric types in Java
+                    // Sadly, I don't know of a better way to support all
+                    // numeric types in Java
                     try {
                         timestamp = Long.valueOf(fieldValue.toString());
                     } catch (NumberFormatException e) {
-                        timestamp = Double.valueOf(fieldValue.toString()).longValue();
+                        timestamp = Double.valueOf(fieldValue.toString())
+                                .longValue();
                     }
                 }
                 return toMillis(timestamp);

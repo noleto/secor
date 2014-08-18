@@ -20,7 +20,7 @@ import com.twitter.ostrich.stats.Stats;
 
 /**
  * Utilities to interact with Ostrich stats exporter.
- *
+ * 
  * @author Pawel Garbacki (pawel@pinterest.com)
  */
 public class StatsUtil {

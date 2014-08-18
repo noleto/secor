@@ -24,7 +24,7 @@ import org.apache.thrift.TFieldIdEnum;
 
 /**
  * Thrift message parser extracts date partitions from thrift messages.
- *
+ * 
  * @author Pawel Garbacki (pawel@pinterest.com)
  */
 public class ThriftMessageParser extends TimestampedMessageParser {
@@ -39,6 +39,7 @@ public class ThriftMessageParser extends TimestampedMessageParser {
     public long extractTimestampMillis(final Message message) throws TException {
         class ThriftTemplate implements TFieldIdEnum {
             private final String mFieldName;
+
             public ThriftTemplate(final String fieldName) {
                 this.mFieldName = fieldName;
             }
@@ -53,7 +54,8 @@ public class ThriftMessageParser extends TimestampedMessageParser {
                 return mFieldName;
             }
         }
-        long timestamp = mDeserializer.partialDeserializeI64(message.getPayload(),
+        long timestamp = mDeserializer.partialDeserializeI64(
+                message.getPayload(),
                 new ThriftTemplate(mConfig.getMessageTimestampName()));
         return toMillis(timestamp);
     }

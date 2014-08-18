@@ -32,20 +32,18 @@ import java.util.*;
 
 /**
  * Log file verifier checks the consistency of log files.
- *
+ * 
  * @author Pawel Garbacki (pawel@pinterest.com)
  */
 public class LogFileVerifier {
     private SecorConfig mConfig;
     private String mTopic;
-    private HashMap<TopicPartition, SortedMap<Long, HashSet<LogFilePath>>>
-        mTopicPartitionToOffsetToFiles;
+    private HashMap<TopicPartition, SortedMap<Long, HashSet<LogFilePath>>> mTopicPartitionToOffsetToFiles;
 
     public LogFileVerifier(SecorConfig config, String topic) throws IOException {
         mConfig = config;
         mTopic = topic;
-        mTopicPartitionToOffsetToFiles =
-            new HashMap<TopicPartition, SortedMap<Long, HashSet<LogFilePath>>>();
+        mTopicPartitionToOffsetToFiles = new HashMap<TopicPartition, SortedMap<Long, HashSet<LogFilePath>>>();
     }
 
     private String getPrefix() {
@@ -63,13 +61,14 @@ public class LogFileVerifier {
         for (String path : paths) {
             if (!path.endsWith("/_SUCCESS")) {
                 LogFilePath logFilePath = new LogFilePath(prefix, path);
-                TopicPartition topicPartition = new TopicPartition(logFilePath.getTopic(),
-                    logFilePath.getKafkaPartition());
-                SortedMap<Long, HashSet<LogFilePath>> offsetToFiles =
-                    mTopicPartitionToOffsetToFiles.get(topicPartition);
+                TopicPartition topicPartition = new TopicPartition(
+                        logFilePath.getTopic(), logFilePath.getKafkaPartition());
+                SortedMap<Long, HashSet<LogFilePath>> offsetToFiles = mTopicPartitionToOffsetToFiles
+                        .get(topicPartition);
                 if (offsetToFiles == null) {
                     offsetToFiles = new TreeMap<Long, HashSet<LogFilePath>>();
-                    mTopicPartitionToOffsetToFiles.put(topicPartition, offsetToFiles);
+                    mTopicPartitionToOffsetToFiles.put(topicPartition,
+                            offsetToFiles);
                 }
                 long offset = logFilePath.getOffset();
                 HashSet<LogFilePath> logFilePaths = offsetToFiles.get(offset);
@@ -83,13 +82,14 @@ public class LogFileVerifier {
     }
 
     private void filterOffsets(long fromOffset, long toOffset) {
-        Iterator iterator = mTopicPartitionToOffsetToFiles.entrySet().iterator();
+        Iterator iterator = mTopicPartitionToOffsetToFiles.entrySet()
+                .iterator();
         while (iterator.hasNext()) {
             long firstOffset = -2;
             long lastOffset = Long.MAX_VALUE;
             Map.Entry entry = (Map.Entry) iterator.next();
-            SortedMap<Long, HashSet<LogFilePath>> offsetToFiles =
-                (SortedMap<Long, HashSet<LogFilePath>>) entry.getValue();
+            SortedMap<Long, HashSet<LogFilePath>> offsetToFiles = (SortedMap<Long, HashSet<LogFilePath>>) entry
+                    .getValue();
             for (long offset : offsetToFiles.keySet()) {
                 if (offset <= fromOffset || firstOffset == -2) {
                     firstOffset = offset;
@@ -101,7 +101,8 @@ public class LogFileVerifier {
             if (firstOffset != -2) {
                 TopicPartition topicPartition = (TopicPartition) entry.getKey();
                 offsetToFiles = offsetToFiles.subMap(firstOffset, lastOffset);
-                mTopicPartitionToOffsetToFiles.put(topicPartition, offsetToFiles);
+                mTopicPartitionToOffsetToFiles.put(topicPartition,
+                        offsetToFiles);
             }
         }
     }
@@ -110,10 +111,11 @@ public class LogFileVerifier {
         String path = logFilePath.getLogFilePath();
         Path fsPath = new Path(path);
         FileSystem fileSystem = FileUtil.getFileSystem(path);
-        SequenceFile.Reader reader = new SequenceFile.Reader(fileSystem, fsPath,
-            new Configuration());
+        SequenceFile.Reader reader = new SequenceFile.Reader(fileSystem,
+                fsPath, new Configuration());
         LongWritable key = (LongWritable) reader.getKeyClass().newInstance();
-        BytesWritable value = (BytesWritable) reader.getValueClass().newInstance();
+        BytesWritable value = (BytesWritable) reader.getValueClass()
+                .newInstance();
         int result = 0;
         while (reader.next(key, value)) {
             result++;
@@ -122,33 +124,42 @@ public class LogFileVerifier {
         return result;
     }
 
-    public void verifyCounts(long fromOffset, long toOffset, int numMessages) throws Exception {
+    public void verifyCounts(long fromOffset, long toOffset, int numMessages)
+            throws Exception {
         populateTopicPartitionToOffsetToFiles();
         filterOffsets(fromOffset, toOffset);
-        Iterator iterator = mTopicPartitionToOffsetToFiles.entrySet().iterator();
+        Iterator iterator = mTopicPartitionToOffsetToFiles.entrySet()
+                .iterator();
         int aggregateMessageCount = 0;
         while (iterator.hasNext()) {
             long previousOffset = -2L;
             long previousMessageCount = -2L;
             Map.Entry entry = (Map.Entry) iterator.next();
-            SortedMap<Long, HashSet<LogFilePath>> offsetToFiles =
-                (SortedMap<Long, HashSet<LogFilePath>>) entry.getValue();
+            SortedMap<Long, HashSet<LogFilePath>> offsetToFiles = (SortedMap<Long, HashSet<LogFilePath>>) entry
+                    .getValue();
             for (HashSet<LogFilePath> logFilePaths : offsetToFiles.values()) {
                 int messageCount = 0;
                 long offset = -2;
                 for (LogFilePath logFilePath : logFilePaths) {
-                    assert offset == -2 || offset == logFilePath.getOffset():
-                        Long.toString(offset) + " || " + offset + " == " + logFilePath.getOffset();
+                    assert offset == -2 || offset == logFilePath.getOffset() : Long
+                            .toString(offset)
+                            + " || "
+                            + offset
+                            + " == "
+                            + logFilePath.getOffset();
                     messageCount += getMessageCount(logFilePath);
                     offset = logFilePath.getOffset();
                 }
-                if (previousOffset != -2 && offset - previousOffset != previousMessageCount) {
-                    TopicPartition topicPartition = (TopicPartition) entry.getKey();
-                    throw new RuntimeException("Message count of " + previousMessageCount +
-                                               " in topic " + topicPartition.getTopic() +
-                                               " partition " + topicPartition.getPartition() +
-                                               " does not agree with adjacent offsets " +
-                                               previousOffset + " and " + offset);
+                if (previousOffset != -2
+                        && offset - previousOffset != previousMessageCount) {
+                    TopicPartition topicPartition = (TopicPartition) entry
+                            .getKey();
+                    throw new RuntimeException("Message count of "
+                            + previousMessageCount + " in topic "
+                            + topicPartition.getTopic() + " partition "
+                            + topicPartition.getPartition()
+                            + " does not agree with adjacent offsets "
+                            + previousOffset + " and " + offset);
                 }
                 previousOffset = offset;
                 previousMessageCount = messageCount;
@@ -156,39 +167,43 @@ public class LogFileVerifier {
             }
         }
         if (numMessages != -1 && aggregateMessageCount != numMessages) {
-            throw new RuntimeException("Message count " + aggregateMessageCount +
-                " does not agree with the expected count " + numMessages);
+            throw new RuntimeException("Message count " + aggregateMessageCount
+                    + " does not agree with the expected count " + numMessages);
         }
     }
 
-    private void getOffsets(LogFilePath logFilePath, Set<Long> offsets) throws Exception {
+    private void getOffsets(LogFilePath logFilePath, Set<Long> offsets)
+            throws Exception {
         String path = logFilePath.getLogFilePath();
         Path fsPath = new Path(path);
         FileSystem fileSystem = FileUtil.getFileSystem(path);
-        SequenceFile.Reader reader = new SequenceFile.Reader(fileSystem, fsPath,
-            new Configuration());
+        SequenceFile.Reader reader = new SequenceFile.Reader(fileSystem,
+                fsPath, new Configuration());
         LongWritable key = (LongWritable) reader.getKeyClass().newInstance();
-        BytesWritable value = (BytesWritable) reader.getValueClass().newInstance();
+        BytesWritable value = (BytesWritable) reader.getValueClass()
+                .newInstance();
         while (reader.next(key, value)) {
             if (!offsets.add(key.get())) {
-                throw new RuntimeException("duplicate key " + key.get() + " found in file " +
-                    logFilePath.getLogFilePath());
+                throw new RuntimeException("duplicate key " + key.get()
+                        + " found in file " + logFilePath.getLogFilePath());
             }
         }
         reader.close();
     }
 
-    public void verifySequences(long fromOffset, long toOffset) throws Exception {
+    public void verifySequences(long fromOffset, long toOffset)
+            throws Exception {
         populateTopicPartitionToOffsetToFiles();
         filterOffsets(fromOffset, toOffset);
 
-        Iterator iterator = mTopicPartitionToOffsetToFiles.entrySet().iterator();
+        Iterator iterator = mTopicPartitionToOffsetToFiles.entrySet()
+                .iterator();
         while (iterator.hasNext()) {
             TreeSet<Long> offsets = new TreeSet<Long>();
             Map.Entry entry = (Map.Entry) iterator.next();
             TopicPartition topicPartition = (TopicPartition) entry.getKey();
-            SortedMap<Long, HashSet<LogFilePath>> offsetToFiles =
-                    (SortedMap<Long, HashSet<LogFilePath>>) entry.getValue();
+            SortedMap<Long, HashSet<LogFilePath>> offsetToFiles = (SortedMap<Long, HashSet<LogFilePath>>) entry
+                    .getValue();
             for (HashSet<LogFilePath> logFilePaths : offsetToFiles.values()) {
                 for (LogFilePath logFilePath : logFilePaths) {
                     getOffsets(logFilePath, offsets);
@@ -197,9 +212,10 @@ public class LogFileVerifier {
             long lastOffset = -2;
             for (Long offset : offsets) {
                 if (lastOffset != -2) {
-                    assert lastOffset + 1 == offset: Long.toString(offset) + " + 1 == " + offset +
-                        " for topic " + topicPartition.getTopic() + " partition " +
-                        topicPartition.getPartition();
+                    assert lastOffset + 1 == offset : Long.toString(offset)
+                            + " + 1 == " + offset + " for topic "
+                            + topicPartition.getTopic() + " partition "
+                            + topicPartition.getPartition();
                 }
                 lastOffset = offset;
             }

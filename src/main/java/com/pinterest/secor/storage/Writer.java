@@ -28,12 +28,12 @@ import com.pinterest.secor.message.ParsedMessage;
  */
 public interface Writer {
 
-	void close() throws IOException;
+    void close() throws IOException;
 
-	long getLength() throws IOException;
+    long getLength() throws IOException;
 
-	void append(ParsedMessage message) throws IOException;
+    void append(ParsedMessage message) throws IOException;
 
-	// TODO LN ugly, only for unit test
-	public Object getImpl();
+    // TODO LN ugly, only for unit test
+    public Object getImpl();
 }

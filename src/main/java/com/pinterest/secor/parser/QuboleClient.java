@@ -27,7 +27,7 @@ import java.util.Map;
 
 /**
  * Qubole client encapsulates communication with a Qubole cluster.
- *
+ * 
  * @author Pawel Garbacki (pawel@pinterest.com)
  */
 public class QuboleClient {
@@ -48,16 +48,16 @@ public class QuboleClient {
             if (body != null) {
                 connection.setRequestMethod("POST");
                 connection.setRequestProperty("Content-Length",
-                                              Integer.toString(body.getBytes().length));
+                        Integer.toString(body.getBytes().length));
             }
-            connection.setUseCaches (false);
+            connection.setUseCaches(false);
             connection.setDoInput(true);
             connection.setDoOutput(true);
 
             if (body != null) {
                 // Send request.
                 DataOutputStream dataOutputStream = new DataOutputStream(
-                    connection.getOutputStream());
+                        connection.getOutputStream());
                 dataOutputStream.writeBytes(body);
                 dataOutputStream.flush();
                 dataOutputStream.close();
@@ -65,11 +65,12 @@ public class QuboleClient {
 
             // Get Response.
             InputStream inputStream = connection.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(
+                    inputStream));
             Map response = (Map) JSONValue.parse(reader);
             if (response.get("status").equals("error")) {
-                throw new RuntimeException("command " + url + " with body " + body + " failed " +
-                    JSONObject.toJSONString(response));
+                throw new RuntimeException("command " + url + " with body "
+                        + body + " failed " + JSONObject.toJSONString(response));
             }
             return response;
         } catch (IOException exception) {
@@ -89,23 +90,25 @@ public class QuboleClient {
         return (Integer) response.get("id");
     }
 
-    private void waitForCompletion(int commandId) throws IOException, InterruptedException {
-        URL url = new URL("http://api.qubole.com/api/v1.2/commands/" + commandId);
+    private void waitForCompletion(int commandId) throws IOException,
+            InterruptedException {
+        URL url = new URL("http://api.qubole.com/api/v1.2/commands/"
+                + commandId);
         while (true) {
             Map response = makeRequest(url, null);
             if (response.get("status").equals("done")) {
                 return;
             }
-            System.out.println("waiting 3 seconds for results of query " + commandId +
-                               ". Current status " + response.get("status"));
+            System.out.println("waiting 3 seconds for results of query "
+                    + commandId + ". Current status " + response.get("status"));
             Thread.sleep(3000);
         }
     }
 
-    public void addPartition(String table, String partition) throws IOException,
-            InterruptedException {
-        String queryStr = "ALTER TABLE " + table + " ADD IF NOT EXISTS PARTITION (" + partition +
-            ")";
+    public void addPartition(String table, String partition)
+            throws IOException, InterruptedException {
+        String queryStr = "ALTER TABLE " + table
+                + " ADD IF NOT EXISTS PARTITION (" + partition + ")";
         int commandId = query(queryStr);
         waitForCompletion(commandId);
     }

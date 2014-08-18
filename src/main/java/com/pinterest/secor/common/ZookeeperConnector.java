@@ -35,11 +35,12 @@ import java.util.List;
 
 /**
  * ZookeeperConnector implements interactions with Zookeeper.
- *
+ * 
  * @author Pawel Garbacki (pawel@pinterest.com)
  */
 public class ZookeeperConnector {
-    private static final Logger LOG = LoggerFactory.getLogger(ZookeeperConnector.class);
+    private static final Logger LOG = LoggerFactory
+            .getLogger(ZookeeperConnector.class);
 
     private SecorConfig mConfig;
     private ZooKeeperClient mZookeeperClient;
@@ -47,7 +48,8 @@ public class ZookeeperConnector {
 
     public ZookeeperConnector(SecorConfig config) {
         mConfig = config;
-        mZookeeperClient = new ZooKeeperClient(Amount.of(1, Time.DAYS), getZookeeperAddresses());
+        mZookeeperClient = new ZooKeeperClient(Amount.of(1, Time.DAYS),
+                getZookeeperAddresses());
         mLocks = new HashMap<String, DistributedLock>();
     }
 
@@ -57,7 +59,8 @@ public class ZookeeperConnector {
         LinkedList<InetSocketAddress> result = new LinkedList<InetSocketAddress>();
         for (String hostport : hostports) {
             String[] elements = hostport.split(":");
-            assert elements.length == 2: Integer.toString(elements.length) + " == 2";
+            assert elements.length == 2 : Integer.toString(elements.length)
+                    + " == 2";
             String host = elements[0];
             int port = Integer.parseInt(elements[1]);
             result.add(new InetSocketAddress(host, port));
@@ -66,15 +69,17 @@ public class ZookeeperConnector {
     }
 
     public void lock(String lockPath) {
-        assert mLocks.get(lockPath) == null: "mLocks.get(" + lockPath + ") == null";
-        DistributedLock distributedLock = new DistributedLockImpl(mZookeeperClient, lockPath);
+        assert mLocks.get(lockPath) == null : "mLocks.get(" + lockPath
+                + ") == null";
+        DistributedLock distributedLock = new DistributedLockImpl(
+                mZookeeperClient, lockPath);
         mLocks.put(lockPath, distributedLock);
         distributedLock.lock();
     }
 
     public void unlock(String lockPath) {
         DistributedLock distributedLock = mLocks.get(lockPath);
-        assert distributedLock != null: "mLocks.get(" + lockPath + ") != null";
+        assert distributedLock != null : "mLocks.get(" + lockPath + ") != null";
         distributedLock.unlock();
         mLocks.remove(lockPath);
     }
@@ -88,11 +93,12 @@ public class ZookeeperConnector {
     }
 
     private String getCommittedOffsetPartitionPath(TopicPartition topicPartition) {
-        return getCommittedOffsetTopicPath(topicPartition.getTopic()) + "/" +
-            topicPartition.getPartition();
+        return getCommittedOffsetTopicPath(topicPartition.getTopic()) + "/"
+                + topicPartition.getPartition();
     }
 
-    public long getCommittedOffsetCount(TopicPartition topicPartition) throws Exception {
+    public long getCommittedOffsetCount(TopicPartition topicPartition)
+            throws Exception {
         ZooKeeper zookeeper = mZookeeperClient.get();
         String offsetPath = getCommittedOffsetPartitionPath(topicPartition);
         try {
@@ -104,7 +110,8 @@ public class ZookeeperConnector {
         }
     }
 
-    public List<Integer> getCommittedOffsetPartitions(String topic) throws Exception {
+    public List<Integer> getCommittedOffsetPartitions(String topic)
+            throws Exception {
         ZooKeeper zookeeper = mZookeeperClient.get();
         String topicPath = getCommittedOffsetTopicPath(topic);
         List<String> partitions = zookeeper.getChildren(topicPath, false);
@@ -132,21 +139,22 @@ public class ZookeeperConnector {
 
     private void createMissingParents(String path) throws Exception {
         ZooKeeper zookeeper = mZookeeperClient.get();
-        assert path.charAt(0) == '/': path + ".charAt(0) == '/'";
+        assert path.charAt(0) == '/' : path + ".charAt(0) == '/'";
         String[] elements = path.split("/");
         String prefix = "";
         for (int i = 1; i < elements.length - 1; ++i) {
             prefix += "/" + elements[i];
             try {
-                zookeeper.create(prefix, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                zookeeper.create(prefix, null, ZooDefs.Ids.OPEN_ACL_UNSAFE,
+                        CreateMode.PERSISTENT);
                 LOG.info("created path " + prefix);
             } catch (KeeperException.NodeExistsException exception) {
             }
         }
     }
 
-    public void setCommittedOffsetCount(TopicPartition topicPartition, long count)
-            throws Exception {
+    public void setCommittedOffsetCount(TopicPartition topicPartition,
+            long count) throws Exception {
         ZooKeeper zookeeper = mZookeeperClient.get();
         String offsetPath = getCommittedOffsetPartitionPath(topicPartition);
         LOG.info("creating missing parents for zookeeper path " + offsetPath);
@@ -157,7 +165,8 @@ public class ZookeeperConnector {
             // -1 matches any version
             zookeeper.setData(offsetPath, data, -1);
         } catch (KeeperException.NoNodeException exception) {
-            zookeeper.create(offsetPath, data, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            zookeeper.create(offsetPath, data, ZooDefs.Ids.OPEN_ACL_UNSAFE,
+                    CreateMode.PERSISTENT);
         }
     }
 
@@ -172,8 +181,8 @@ public class ZookeeperConnector {
         }
     }
 
-    public void deleteCommittedOffsetPartitionCount(TopicPartition topicPartition)
-            throws Exception {
+    public void deleteCommittedOffsetPartitionCount(
+            TopicPartition topicPartition) throws Exception {
         String offsetPath = getCommittedOffsetPartitionPath(topicPartition);
         ZooKeeper zookeeper = mZookeeperClient.get();
         LOG.info("deleting path " + offsetPath);

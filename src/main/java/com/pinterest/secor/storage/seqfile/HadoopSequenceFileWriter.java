@@ -27,30 +27,30 @@ import com.pinterest.secor.storage.Writer;
 
 public class HadoopSequenceFileWriter implements Writer {
 
-	private final SequenceFile.Writer mBackedWriter;
+    private final SequenceFile.Writer mBackedWriter;
 
-	public HadoopSequenceFileWriter(SequenceFile.Writer writer) {
-		this.mBackedWriter = writer;
-	}
+    public HadoopSequenceFileWriter(SequenceFile.Writer writer) {
+        this.mBackedWriter = writer;
+    }
 
-	@Override
-	public void close() throws IOException {
-		mBackedWriter.close();
-	}
+    @Override
+    public void close() throws IOException {
+        mBackedWriter.close();
+    }
 
-	@Override
-	public long getLength() throws IOException {
-		return mBackedWriter.getLength();
-	}
+    @Override
+    public long getLength() throws IOException {
+        return mBackedWriter.getLength();
+    }
 
-	@Override
-	public void append(final ParsedMessage message) throws IOException {
-		LongWritable key = new LongWritable(message.getOffset());
-		BytesWritable value = new BytesWritable(message.getPayload());
-		mBackedWriter.append(key, value);
-	}
+    @Override
+    public void append(final ParsedMessage message) throws IOException {
+        LongWritable key = new LongWritable(message.getOffset());
+        BytesWritable value = new BytesWritable(message.getPayload());
+        mBackedWriter.append(key, value);
+    }
 
-	public Object getImpl() {
-		return mBackedWriter;
-	}
+    public Object getImpl() {
+        return mBackedWriter;
+    }
 }

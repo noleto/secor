@@ -24,24 +24,24 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Partition finalizer main.
- *
- * Run:
- *     $ cd optimus/secor
- *     $ mvn package
- *     $ cd target
- *     $ java -ea -Dlog4j.configuration=log4j.dev.properties -Dconfig=secor.dev.backup.properties \
- *         -cp "secor-0.1-SNAPSHOT.jar:lib/*" com.pinterest.secor.main.PartitionFinalizerMain
- *
+ * 
+ * Run: $ cd optimus/secor $ mvn package $ cd target $ java -ea
+ * -Dlog4j.configuration=log4j.dev.properties
+ * -Dconfig=secor.dev.backup.properties \ -cp "secor-0.1-SNAPSHOT.jar:lib/*"
+ * com.pinterest.secor.main.PartitionFinalizerMain
+ * 
  * @author Pawel Garbacki (pawel@pinterest.com)
  */
 public class PartitionFinalizerMain {
-    private static final Logger LOG = LoggerFactory.getLogger(LogFilePrinterMain.class);
+    private static final Logger LOG = LoggerFactory
+            .getLogger(LogFilePrinterMain.class);
 
     public static void main(String[] args) {
         try {
             SecorConfig config = SecorConfig.load();
             FileUtil.configure(config);
-            PartitionFinalizer partitionFinalizer = new PartitionFinalizer(config);
+            PartitionFinalizer partitionFinalizer = new PartitionFinalizer(
+                    config);
             partitionFinalizer.finalizePartitions();
         } catch (Throwable t) {
             LOG.error("Partition finalizer failed", t);

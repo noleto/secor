@@ -29,20 +29,7 @@ import com.pinterest.secor.common.LogFilePath;
  */
 public interface StorageFactory {
 
-	Writer createWriter(LogFilePath path) throws IOException;
+    Writer createWriter(LogFilePath path) throws IOException;
 
-	Reader createReader(LogFilePath path) throws Exception;
-
-	/**
-	 * Tells if the storage format supports the process of trimming. Trimming a
-	 * file is needed when there was a rebalancing event and someone committed
-	 * an offset lower than that of the current message being consumed. Local
-	 * file needs to be trimmed.
-	 * 
-	 * @return <tt>true</tt> if the storage format supports trim action.
-	 *         Otherwise, returns <tt>false</tt>.
-	 */
-	boolean supportsTrim();
-
-	String getFileExtension();
+    String getFileExtension();
 }

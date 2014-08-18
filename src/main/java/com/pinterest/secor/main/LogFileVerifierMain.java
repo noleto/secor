@@ -25,47 +25,44 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Log file verifier main.
- *
- * Run:
- *     $ cd optimus/secor
- *     $ mvn package
- *     $ cd target
- *     $ java -ea -Dlog4j.configuration=log4j.dev.properties -Dconfig=secor.dev.backup.properties \
- *         -cp "secor-0.1-SNAPSHOT.jar:lib/*" com.pinterest.secor.main.LogFileVerifierMain -t \
- *         topic -q
- *
+ * 
+ * Run: $ cd optimus/secor $ mvn package $ cd target $ java -ea
+ * -Dlog4j.configuration=log4j.dev.properties
+ * -Dconfig=secor.dev.backup.properties \ -cp "secor-0.1-SNAPSHOT.jar:lib/*"
+ * com.pinterest.secor.main.LogFileVerifierMain -t \ topic -q
+ * 
  * @author Pawel Garbacki (pawel@pinterest.com)
  */
 public class LogFileVerifierMain {
-    private static final Logger LOG = LoggerFactory.getLogger(LogFileVerifierMain.class);
+    private static final Logger LOG = LoggerFactory
+            .getLogger(LogFileVerifierMain.class);
 
     private static CommandLine parseArgs(String[] args) throws ParseException {
         Options options = new Options();
         options.addOption(OptionBuilder.withLongOpt("topic")
-               .withDescription("kafka topic name")
-               .hasArg()
-               .withArgName("<topic>")
-               .withType(String.class)
-               .create("t"));
-        options.addOption(OptionBuilder.withLongOpt("start_offset")
-               .withDescription("offset identifying the first set of files to check")
-               .withArgName("<offset>")
-               .withType(Long.class)
-               .create("s"));
-        options.addOption(OptionBuilder.withLongOpt("end_offset")
-               .withDescription("offset identifying the last set of files to check")
-               .withArgName("<offset>")
-               .withType(Long.class)
-               .create("e"));
+                .withDescription("kafka topic name").hasArg()
+                .withArgName("<topic>").withType(String.class).create("t"));
+        options.addOption(OptionBuilder
+                .withLongOpt("start_offset")
+                .withDescription(
+                        "offset identifying the first set of files to check")
+                .withArgName("<offset>").withType(Long.class).create("s"));
+        options.addOption(OptionBuilder
+                .withLongOpt("end_offset")
+                .withDescription(
+                        "offset identifying the last set of files to check")
+                .withArgName("<offset>").withType(Long.class).create("e"));
         options.addOption(OptionBuilder.withLongOpt("messages")
-               .withDescription("expected number of messages")
-               .hasArg()
-               .withArgName("<num_messages>")
-               .withType(Number.class)
-               .create("m"));
-        options.addOption("q", "sequence_offsets", false, "whether to verify that offsets " +
-                          "increase sequentially.  Requires loading all offsets in a snapshot " +
-                          "to memory so use cautiously");
+                .withDescription("expected number of messages").hasArg()
+                .withArgName("<num_messages>").withType(Number.class)
+                .create("m"));
+        options.addOption(
+                "q",
+                "sequence_offsets",
+                false,
+                "whether to verify that offsets "
+                        + "increase sequentially.  Requires loading all offsets in a snapshot "
+                        + "to memory so use cautiously");
 
         CommandLineParser parser = new GnuParser();
         return parser.parse(options, args);
@@ -77,18 +74,21 @@ public class LogFileVerifierMain {
             SecorConfig config = SecorConfig.load();
             FileUtil.configure(config);
             LogFileVerifier verifier = new LogFileVerifier(config,
-                commandLine.getOptionValue("topic"));
+                    commandLine.getOptionValue("topic"));
             long startOffset = -2;
             long endOffset = Long.MAX_VALUE;
             if (commandLine.hasOption("start_offset")) {
-                startOffset = Long.parseLong(commandLine.getOptionValue("start_offset"));
+                startOffset = Long.parseLong(commandLine
+                        .getOptionValue("start_offset"));
                 if (commandLine.hasOption("end_offset")) {
-                    endOffset = Long.parseLong(commandLine.getOptionValue("end_offset"));
+                    endOffset = Long.parseLong(commandLine
+                            .getOptionValue("end_offset"));
                 }
             }
             int numMessages = -1;
             if (commandLine.hasOption("messages")) {
-                numMessages = ((Number) commandLine.getParsedOptionValue("messages")).intValue();
+                numMessages = ((Number) commandLine
+                        .getParsedOptionValue("messages")).intValue();
             }
             verifier.verifyCounts(startOffset, endOffset, numMessages);
             if (commandLine.hasOption("sequence_offsets")) {

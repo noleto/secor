@@ -26,7 +26,7 @@ import com.pinterest.secor.message.ParsedMessage;
 
 /**
  * Message parser extracts partitions from messages.
- *
+ * 
  * @author Pawel Garbacki (pawel@pinterest.com)
  */
 public abstract class MessageParser {
@@ -38,9 +38,11 @@ public abstract class MessageParser {
 
     public ParsedMessage parse(Message message) throws Exception {
         String[] partitions = extractPartitions(message);
-        return new ParsedMessage(message.getTopic(), message.getKafkaPartition(),
-                                 message.getOffset(), message.getPayload(), partitions);
+        return new ParsedMessage(message.getTopic(),
+                message.getKafkaPartition(), message.getOffset(),
+                message.getPayload(), partitions);
     }
 
-    public abstract String[] extractPartitions(Message payload) throws Exception;
+    public abstract String[] extractPartitions(Message payload)
+            throws Exception;
 }

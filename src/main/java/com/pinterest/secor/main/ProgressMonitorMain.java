@@ -23,18 +23,17 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Progress monitor main.
- *
- * Run:
- *     $ cd optimus/secor
- *     $ mvn package
- *     $ cd target
- *     $ java -ea -Dlog4j.configuration=log4j.dev.properties -Dconfig=secor.dev.backup.properties \
- *         -cp "secor-0.1-SNAPSHOT.jar:lib/*" com.pinterest.secor.main.ProgressMonitorMain
- *
+ * 
+ * Run: $ cd optimus/secor $ mvn package $ cd target $ java -ea
+ * -Dlog4j.configuration=log4j.dev.properties
+ * -Dconfig=secor.dev.backup.properties \ -cp "secor-0.1-SNAPSHOT.jar:lib/*"
+ * com.pinterest.secor.main.ProgressMonitorMain
+ * 
  * @author Pawel Garbacki (pawel@pinterest.com)
  */
 public class ProgressMonitorMain {
-    private static final Logger LOG = LoggerFactory.getLogger(ProgressMonitorMain.class);
+    private static final Logger LOG = LoggerFactory
+            .getLogger(ProgressMonitorMain.class);
 
     public static void main(String[] args) {
         try {

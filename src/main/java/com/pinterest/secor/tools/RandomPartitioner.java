@@ -21,7 +21,7 @@ import kafka.utils.VerifiableProperties;
 
 /**
  * Random partitioner spreads messages evenly across partitions.
- *
+ * 
  * @author Pawel Garbacki (pawel@pinterest.com)
  */
 public class RandomPartitioner implements Partitioner {

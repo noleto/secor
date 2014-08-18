@@ -36,11 +36,12 @@ import java.util.Map;
 
 /**
  * Progress monitor exports offset lags per topic partition.
- *
+ * 
  * @author Pawel Garbacki (pawel@pinterest.com)
  */
 public class ProgressMonitor {
-    private static final Logger LOG = LoggerFactory.getLogger(ProgressMonitor.class);
+    private static final Logger LOG = LoggerFactory
+            .getLogger(ProgressMonitor.class);
     private SecorConfig mConfig;
     private ZookeeperConnector mZookeeperConnector;
     private KafkaClient mKafkaClient;
@@ -54,7 +55,8 @@ public class ProgressMonitor {
     }
 
     private void makeRequest(String body) throws IOException {
-        URL url = new URL("http://" + mConfig.getTsdbHostport() + "/api/put?details");
+        URL url = new URL("http://" + mConfig.getTsdbHostport()
+                + "/api/put?details");
         HttpURLConnection connection = null;
         try {
             connection = (HttpURLConnection) url.openConnection();
@@ -66,14 +68,14 @@ public class ProgressMonitor {
                 connection.setRequestProperty("Content-Length",
                         Integer.toString(body.getBytes().length));
             }
-            connection.setUseCaches (false);
+            connection.setUseCaches(false);
             connection.setDoInput(true);
             connection.setDoOutput(true);
 
             if (body != null) {
                 // Send request.
                 DataOutputStream dataOutputStream = new DataOutputStream(
-                    connection.getOutputStream());
+                        connection.getOutputStream());
                 dataOutputStream.writeBytes(body);
                 dataOutputStream.flush();
                 dataOutputStream.close();
@@ -81,11 +83,12 @@ public class ProgressMonitor {
 
             // Get Response.
             InputStream inputStream = connection.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(
+                    inputStream));
             Map response = (Map) JSONValue.parse(reader);
             if (!response.get("failed").equals(0)) {
-                throw new RuntimeException("url " + url + " with body " + body + " failed " +
-                    JSONObject.toJSONString(response));
+                throw new RuntimeException("url " + url + " with body " + body
+                        + " failed " + JSONObject.toJSONString(response));
             }
         } catch (IOException exception) {
             if (connection != null) {
@@ -95,8 +98,8 @@ public class ProgressMonitor {
         }
     }
 
-    private void exportToTsdb(String metric, Map<String, String> tags, String value)
-            throws IOException {
+    private void exportToTsdb(String metric, Map<String, String> tags,
+            String value) throws IOException {
         JSONObject bodyJson = new JSONObject();
         bodyJson.put("metric", metric);
         bodyJson.put("timestamp", System.currentTimeMillis() / 1000);
@@ -113,47 +116,56 @@ public class ProgressMonitor {
     public void exportStats() throws Exception {
         List<String> topics = mZookeeperConnector.getCommittedOffsetTopics();
         for (String topic : topics) {
-            if (topic.matches(mConfig.getTsdbBlacklistTopics()) ||
-                    !topic.matches(mConfig.getKafkaTopicFilter())) {
+            if (topic.matches(mConfig.getTsdbBlacklistTopics())
+                    || !topic.matches(mConfig.getKafkaTopicFilter())) {
                 LOG.info("skipping topic " + topic);
                 continue;
             }
-            List<Integer> partitions = mZookeeperConnector.getCommittedOffsetPartitions(topic);
+            List<Integer> partitions = mZookeeperConnector
+                    .getCommittedOffsetPartitions(topic);
             for (Integer partition : partitions) {
-                TopicPartition topicPartition = new TopicPartition(topic, partition);
-                Message committedMessage = mKafkaClient.getCommittedMessage(topicPartition);
-                long committedOffset = - 1;
+                TopicPartition topicPartition = new TopicPartition(topic,
+                        partition);
+                Message committedMessage = mKafkaClient
+                        .getCommittedMessage(topicPartition);
+                long committedOffset = -1;
                 long committedTimestampMillis = -1;
                 if (committedMessage == null) {
-                    LOG.warn("no committed message found in topic " + topic + " partition " +
-                        partition);
+                    LOG.warn("no committed message found in topic " + topic
+                            + " partition " + partition);
                 } else {
                     committedOffset = committedMessage.getOffset();
-                    committedTimestampMillis = mThriftMessageParser.extractTimestampMillis(
-                        committedMessage);
+                    committedTimestampMillis = mThriftMessageParser
+                            .extractTimestampMillis(committedMessage);
                 }
 
-                Message lastMessage = mKafkaClient.getLastMessage(topicPartition);
+                Message lastMessage = mKafkaClient
+                        .getLastMessage(topicPartition);
                 if (lastMessage == null) {
-                    LOG.warn("no message found in topic " + topic + " partition " + partition);
+                    LOG.warn("no message found in topic " + topic
+                            + " partition " + partition);
                 } else {
                     long lastOffset = lastMessage.getOffset();
-                    long lastTimestampMillis = mThriftMessageParser.extractTimestampMillis(
-                        lastMessage);
-                    assert committedOffset <= lastOffset: Long.toString(committedOffset) + " <= " +
-                        lastOffset;
+                    long lastTimestampMillis = mThriftMessageParser
+                            .extractTimestampMillis(lastMessage);
+                    assert committedOffset <= lastOffset : Long
+                            .toString(committedOffset) + " <= " + lastOffset;
                     long offsetLag = lastOffset - committedOffset;
-                    long timestampMillisLag = lastTimestampMillis - committedTimestampMillis;
+                    long timestampMillisLag = lastTimestampMillis
+                            - committedTimestampMillis;
                     HashMap<String, String> tags = new HashMap<String, String>();
                     tags.put("topic", topic);
                     tags.put("partition", Integer.toString(partition));
-                    exportToTsdb("secor.lag.offsets", tags, Long.toString(offsetLag));
+                    exportToTsdb("secor.lag.offsets", tags,
+                            Long.toString(offsetLag));
                     exportToTsdb("secor.lag.seconds", tags,
-                        Long.toString(timestampMillisLag / 1000));
-                    LOG.debug("topic " + topic + " partition " + partition + " committed offset " +
-                        committedOffset + " last offset " + lastOffset + " committed timestamp " +
-                            (committedTimestampMillis / 1000) + " last timestamp " +
-                            (lastTimestampMillis / 1000));
+                            Long.toString(timestampMillisLag / 1000));
+                    LOG.debug("topic " + topic + " partition " + partition
+                            + " committed offset " + committedOffset
+                            + " last offset " + lastOffset
+                            + " committed timestamp "
+                            + (committedTimestampMillis / 1000)
+                            + " last timestamp " + (lastTimestampMillis / 1000));
                 }
             }
         }

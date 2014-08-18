@@ -25,40 +25,34 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Zookeeper client main.
- *
- * Run:
- *     $ cd optimus/secor
- *     $ mvn package
- *     $ cd target
- *     $ java -ea -Dlog4j.configuration=log4j.dev.properties -Dconfig=secor.dev.backup.properties \
- *         -cp "secor-0.1-SNAPSHOT.jar:lib/*" com.pinterest.secor.main.ZookeeperClientMain -c \
- *         delete_committed_offsets -t test -p 0
- *
+ * 
+ * Run: $ cd optimus/secor $ mvn package $ cd target $ java -ea
+ * -Dlog4j.configuration=log4j.dev.properties
+ * -Dconfig=secor.dev.backup.properties \ -cp "secor-0.1-SNAPSHOT.jar:lib/*"
+ * com.pinterest.secor.main.ZookeeperClientMain -c \ delete_committed_offsets -t
+ * test -p 0
+ * 
  * @author Pawel Garbacki (pawel@pinterest.com)
  */
 public class ZookeeperClientMain {
-    private static final Logger LOG = LoggerFactory.getLogger(LogFilePrinterMain.class);
+    private static final Logger LOG = LoggerFactory
+            .getLogger(LogFilePrinterMain.class);
 
     private static CommandLine parseArgs(String[] args) throws ParseException {
         Options options = new Options();
-        options.addOption(OptionBuilder.withLongOpt("command")
-            .withDescription("command name.  One of \"delete_committed_offsets\"")
-            .hasArg()
-            .withArgName("<command>")
-            .withType(String.class)
-            .create("c"));
+        options.addOption(OptionBuilder
+                .withLongOpt("command")
+                .withDescription(
+                        "command name.  One of \"delete_committed_offsets\"")
+                .hasArg().withArgName("<command>").withType(String.class)
+                .create("c"));
         options.addOption(OptionBuilder.withLongOpt("topic")
-                                       .withDescription("topic whose offset should be read")
-                                       .hasArg()
-                                       .withArgName("<topic>")
-                                       .withType(String.class)
-                                       .create("t"));
+                .withDescription("topic whose offset should be read").hasArg()
+                .withArgName("<topic>").withType(String.class).create("t"));
         options.addOption(OptionBuilder.withLongOpt("partition")
-            .withDescription("kafka partition whose offset should be read")
-            .hasArg()
-            .withArgName("<partition>")
-            .withType(Number.class)
-            .create("p"));
+                .withDescription("kafka partition whose offset should be read")
+                .hasArg().withArgName("<partition>").withType(Number.class)
+                .create("p"));
 
         CommandLineParser parser = new GnuParser();
         return parser.parse(options, args);
@@ -70,16 +64,19 @@ public class ZookeeperClientMain {
             String command = commandLine.getOptionValue("command");
             if (!command.equals("delete_committed_offsets")) {
                 throw new IllegalArgumentException(
-                    "command has to be one of \"delete_committed_offsets\"");
+                        "command has to be one of \"delete_committed_offsets\"");
             }
             SecorConfig config = SecorConfig.load();
-            ZookeeperConnector zookeeperConnector = new ZookeeperConnector(config);
+            ZookeeperConnector zookeeperConnector = new ZookeeperConnector(
+                    config);
             String topic = commandLine.getOptionValue("topic");
             if (commandLine.hasOption("partition")) {
-                int partition =
-                    ((Number) commandLine.getParsedOptionValue("partition")).intValue();
-                TopicPartition topicPartition = new TopicPartition(topic, partition);
-                zookeeperConnector.deleteCommittedOffsetPartitionCount(topicPartition);
+                int partition = ((Number) commandLine
+                        .getParsedOptionValue("partition")).intValue();
+                TopicPartition topicPartition = new TopicPartition(topic,
+                        partition);
+                zookeeperConnector
+                        .deleteCommittedOffsetPartitionCount(topicPartition);
             } else {
                 zookeeperConnector.deleteCommittedOffsetTopicCount(topic);
             }

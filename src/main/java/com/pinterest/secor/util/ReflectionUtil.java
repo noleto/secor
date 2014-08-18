@@ -27,14 +27,14 @@ import com.pinterest.secor.common.SecorConfig;
  * @author Pawel Garbacki (pawel@pinterest.com)
  */
 public class ReflectionUtil {
-    public static Object createCompressionCodec(String className) throws Exception {
+    public static Object createCompressionCodec(String className)
+            throws Exception {
         Class<?> clazz = Class.forName(className);
         return clazz.getConstructor().newInstance();
     }
 
-   
     public static Object createMessageParser(String className,
-                                             SecorConfig config) throws Exception {
+            SecorConfig config) throws Exception {
         Class<?> clazz = Class.forName(className);
 
         // Search for an "appropriate" constructor.
@@ -43,17 +43,17 @@ public class ReflectionUtil {
 
             // If the arity matches, let's use it.
             if (paramTypes.length == 1) {
-                Object[] args = {config};
+                Object[] args = { config };
                 return ctor.newInstance(args);
             }
         }
         throw new IllegalArgumentException("Class not found " + className);
     }
 
-	public static Object createStorageFactory(String className,
-			SecorConfig config) throws Exception {
-		Class<?> clazz = Class.forName(className);
+    public static Object createStorageFactory(String className,
+            SecorConfig config) throws Exception {
+        Class<?> clazz = Class.forName(className);
 
-		return clazz.newInstance();
-	}
+        return clazz.newInstance();
+    }
 }

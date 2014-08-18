@@ -28,7 +28,8 @@ public abstract class TimestampedMessageParser extends MessageParser {
         super(config);
     }
 
-    abstract protected long extractTimestampMillis(final Message message) throws Exception;
+    abstract protected long extractTimestampMillis(final Message message)
+            throws Exception;
 
     protected static long toMillis(final long timestamp) {
         final long nanosecondDivider = (long) Math.pow(10, 9 + 9);
@@ -38,7 +39,7 @@ public abstract class TimestampedMessageParser extends MessageParser {
             timestampMillis = timestamp / (long) Math.pow(10, 6);
         } else if (timestamp / millisecondDivider > 0L) {
             timestampMillis = timestamp;
-        } else {  // assume seconds
+        } else { // assume seconds
             timestampMillis = timestamp * 1000L;
         }
         return timestampMillis;
@@ -51,7 +52,7 @@ public abstract class TimestampedMessageParser extends MessageParser {
         Date date = new Date(timestampMillis);
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         format.setTimeZone(TimeZone.getTimeZone("UTC"));
-        String result[] = {"dt=" + format.format(date)};
+        String result[] = { "dt=" + format.format(date) };
         return result;
     }
 }

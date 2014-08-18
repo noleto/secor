@@ -32,11 +32,12 @@ import scala.util.matching.Regex;
 
 /**
  * OstrichAdminService initializes export of metrics to Ostrich.
- *
+ * 
  * @author Pawel Garbacki (pawel@pinterest.com)
  */
 public class OstrichAdminService {
-    private static final Logger LOG = LoggerFactory.getLogger(OstrichAdminService.class);
+    private static final Logger LOG = LoggerFactory
+            .getLogger(OstrichAdminService.class);
     private final int mPort;
 
     public OstrichAdminService(int port) {
@@ -44,25 +45,24 @@ public class OstrichAdminService {
     }
 
     public void start() {
-        Duration[] defaultLatchIntervals = {Duration.apply(1, TimeUnit.MINUTES)};
+        Duration[] defaultLatchIntervals = { Duration
+                .apply(1, TimeUnit.MINUTES) };
         @SuppressWarnings("deprecation")
         AdminServiceFactory adminServiceFactory = new AdminServiceFactory(
-            this.mPort,
-            20,
-            List$.MODULE$.<StatsFactory>empty(),
-            Option.<String>empty(),
-            List$.MODULE$.<Regex>empty(),
-            Map$.MODULE$.<String, CustomHttpHandler>empty(),
-            List.<Duration>fromArray(defaultLatchIntervals)
-        );
+                this.mPort, 20, List$.MODULE$.<StatsFactory> empty(),
+                Option.<String> empty(), List$.MODULE$.<Regex> empty(),
+                Map$.MODULE$.<String, CustomHttpHandler> empty(),
+                List.<Duration> fromArray(defaultLatchIntervals));
         RuntimeEnvironment runtimeEnvironment = new RuntimeEnvironment(this);
         adminServiceFactory.apply(runtimeEnvironment);
         try {
             Properties properties = new Properties();
-            properties.load(this.getClass().getResource("build.properties").openStream());
-            String buildRevision = properties.getProperty("build_revision", "unknown");
+            properties.load(this.getClass().getResource("build.properties")
+                    .openStream());
+            String buildRevision = properties.getProperty("build_revision",
+                    "unknown");
             LOG.info("build.properties build_revision: {}",
-                     properties.getProperty("build_revision", "unknown"));
+                    properties.getProperty("build_revision", "unknown"));
             StatsUtil.setLabel("secor.build_revision", buildRevision);
         } catch (Throwable t) {
             LOG.error("Failed to load properties from build.properties", t);

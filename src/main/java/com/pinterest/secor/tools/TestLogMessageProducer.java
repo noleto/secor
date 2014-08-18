@@ -29,7 +29,7 @@ import java.util.Properties;
 
 /**
  * Test log message producer generates test messages and submits them to kafka.
- *
+ * 
  * @author Pawel Garbacki (pawel@pinterest.com)
  */
 public class TestLogMessageProducer extends Thread {
@@ -44,9 +44,11 @@ public class TestLogMessageProducer extends Thread {
     public void run() {
         Properties properties = new Properties();
         properties.put("metadata.broker.list", "localhost:9092");
-        properties.put("partitioner.class", "com.pinterest.secor.tools.RandomPartitioner");
+        properties.put("partitioner.class",
+                "com.pinterest.secor.tools.RandomPartitioner");
         properties.put("serializer.class", "kafka.serializer.DefaultEncoder");
-        properties.put("key.serializer.class", "kafka.serializer.StringEncoder");
+        properties
+                .put("key.serializer.class", "kafka.serializer.StringEncoder");
         properties.put("request.required.acks", "1");
 
         ProducerConfig config = new ProducerConfig(properties);
@@ -54,8 +56,9 @@ public class TestLogMessageProducer extends Thread {
 
         TSerializer serializer = new TSerializer(new TBinaryProtocol.Factory());
         for (int i = 0; i < mNumMessages; ++i) {
-            TestMessage testMessage = new TestMessage(System.currentTimeMillis() * 1000000L + i,
-                                                      "some_value_" + i);
+            TestMessage testMessage = new TestMessage(
+                    System.currentTimeMillis() * 1000000L + i, "some_value_"
+                            + i);
             if (i % 2 == 0) {
                 testMessage.setEnumField(TestEnum.SOME_VALUE);
             } else {
@@ -64,11 +67,12 @@ public class TestLogMessageProducer extends Thread {
             byte[] bytes;
             try {
                 bytes = serializer.serialize(testMessage);
-            } catch(TException e) {
-                throw new RuntimeException("Failed to serialize message " + testMessage, e);
+            } catch (TException e) {
+                throw new RuntimeException("Failed to serialize message "
+                        + testMessage, e);
             }
             KeyedMessage<String, byte[]> data = new KeyedMessage<String, byte[]>(
-                mTopic, Integer.toString(i), bytes);
+                    mTopic, Integer.toString(i), bytes);
             producer.send(data);
         }
         producer.close();

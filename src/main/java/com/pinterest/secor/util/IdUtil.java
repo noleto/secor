@@ -22,7 +22,7 @@ import java.net.UnknownHostException;
 
 /**
  * Utilities related to identifiers.
- *
+ * 
  * @author Pawel Garbacki (pawel@pinterest.com)
  */
 public class IdUtil {

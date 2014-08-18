@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import com.pinterest.secor.common.LogFilePath;
 import com.pinterest.secor.common.SecorConfig;
-import com.pinterest.secor.storage.Reader;
 import com.pinterest.secor.storage.StorageFactory;
 import com.pinterest.secor.storage.Writer;
 import com.pinterest.secor.util.ReflectionUtil;
@@ -43,70 +42,51 @@ import com.pinterest.secor.util.ReflectionUtil;
  */
 public class HadoopSequenceFileStorageFactory implements StorageFactory {
 
-	private static final Logger LOG = LoggerFactory
-			.getLogger(HadoopSequenceFileStorageFactory.class);
+    private static final Logger LOG = LoggerFactory
+            .getLogger(HadoopSequenceFileStorageFactory.class);
 
-	private String mFileExtension;
-	private CompressionCodec mCodec;
+    private String mFileExtension;
+    private CompressionCodec mCodec;
 
-	public HadoopSequenceFileStorageFactory(SecorConfig config)
-			throws Exception {
-		if (config.getCompressionCodec() != null
-				&& !config.getCompressionCodec().isEmpty()) {
-			mCodec = ((CompressionCodec) ReflectionUtil
-					.createCompressionCodec(config.getCompressionCodec()));
-			mFileExtension = mCodec.getDefaultExtension();
-		} else {
-			mFileExtension = "";
-		}
-	}
+    public HadoopSequenceFileStorageFactory(SecorConfig config)
+            throws Exception {
+        if (config.getCompressionCodec() != null
+                && !config.getCompressionCodec().isEmpty()) {
+            mCodec = ((CompressionCodec) ReflectionUtil
+                    .createCompressionCodec(config.getCompressionCodec()));
+            mFileExtension = mCodec.getDefaultExtension();
+        } else {
+            mFileExtension = "";
+        }
+    }
 
-	@Override
-	public Writer createWriter(LogFilePath path) throws IOException {
+    @Override
+    public Writer createWriter(LogFilePath path) throws IOException {
 
-		Configuration config = new Configuration();
-		FileSystem fs = FileSystem.get(config);
+        Configuration config = new Configuration();
+        FileSystem fs = FileSystem.get(config);
 
-		Path fsPath = new Path(path.getLogFilePath());
+        Path fsPath = new Path(path.getLogFilePath());
 
-		SequenceFile.Writer writer = null;
-		if (mCodec != null) {
-			writer = SequenceFile.createWriter(fs, config, fsPath,
-					LongWritable.class, BytesWritable.class,
-					SequenceFile.CompressionType.BLOCK, mCodec);
-		} else {
-			writer = SequenceFile.createWriter(fs, config, fsPath,
-					LongWritable.class, BytesWritable.class);
-		}
+        SequenceFile.Writer writer = null;
+        if (mCodec != null) {
+            writer = SequenceFile.createWriter(fs, config, fsPath,
+                    LongWritable.class, BytesWritable.class,
+                    SequenceFile.CompressionType.BLOCK, mCodec);
+        } else {
+            writer = SequenceFile.createWriter(fs, config, fsPath,
+                    LongWritable.class, BytesWritable.class);
+        }
 
-		return new HadoopSequenceFileWriter(writer);
-	}
+        return new HadoopSequenceFileWriter(writer);
+    }
 
-	@Override
-	public Reader createReader(LogFilePath path) throws Exception {
-		Configuration config = new Configuration();
-		FileSystem fs = FileSystem.get(config);
+    @Override
+    public String getFileExtension() {
+        return mFileExtension;
+    }
 
-		Path fsPath = new Path(path.getLogFilePath());
-
-		LOG.debug("Creating a Hadoop File Sequence reader for path '{}'.",
-				path.getLogFilePath());
-
-		return new HadoopSequenceFileReader(new SequenceFile.Reader(fs, fsPath,
-				config));
-	}
-
-	@Override
-	public boolean supportsTrim() {
-		return true;
-	}
-
-	@Override
-	public String getFileExtension() {
-		return mFileExtension;
-	}
-
-	public CompressionCodec getCodec() {
-		return mCodec;
-	}
+    public CompressionCodec getCodec() {
+        return mCodec;
+    }
 }

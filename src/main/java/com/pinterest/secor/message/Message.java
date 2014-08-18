@@ -18,11 +18,12 @@ package com.pinterest.secor.message;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.lang.String;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Message represents a raw Kafka log message.
- *
+ * 
  * @author Pawel Garbacki (pawel@pinterest.com)
  */
 public class Message {
@@ -32,10 +33,9 @@ public class Message {
     private byte[] mPayload;
 
     protected String fieldsToString() {
-        return "topic='" + mTopic + '\'' +
-               ", kafkaPartition=" + mKafkaPartition +
-               ", offset=" + mOffset +
-               ", payload=" + new String(mPayload);
+        return "topic='" + mTopic + '\'' + ", kafkaPartition="
+                + mKafkaPartition + ", offset=" + mOffset + ", payload="
+                + StringUtils.abbreviate(new String(mPayload), 140);
 
     }
 

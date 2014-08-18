@@ -23,22 +23,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * LogFilePath represents path of a log file.  It contains convenience method for building and
- * decomposing paths.
- *
- * Log file path has the following form:
- *     prefix/topic/partition1/.../partitionN/generation_kafkaParition_firstMessageOffset
- * where:
- *     prefix is top-level directory for log files.  It can be a local path or an s3 dir,
- *     topic is a kafka topic,
- *     partition1, ..., partitionN is the list of partition names extracted from message content.
- *         E.g., the partition may describe the message date such as dt=2014-01-01,
- *     generation is the consumer version.  It allows up to perform rolling upgrades of
- *         non-compatible Secor releases,
- *     kafkaPartition is the kafka partition of the topic,
- *     firstMessageOffset is the offset of the first message in a batch of files committed
- *         atomically.
- *
+ * LogFilePath represents path of a log file. It contains convenience method for
+ * building and decomposing paths.
+ * 
+ * Log file path has the following form: prefix/topic/partition1/.../partitionN/
+ * generation_kafkaParition_firstMessageOffset where: prefix is top-level
+ * directory for log files. It can be a local path or an s3 dir, topic is a
+ * kafka topic, partition1, ..., partitionN is the list of partition names
+ * extracted from message content. E.g., the partition may describe the message
+ * date such as dt=2014-01-01, generation is the consumer version. It allows up
+ * to perform rolling upgrades of non-compatible Secor releases, kafkaPartition
+ * is the kafka partition of the topic, firstMessageOffset is the offset of the
+ * first message in a batch of files committed atomically.
+ * 
  * @author Pawel Garbacki (pawel@pinterest.com)
  */
 public class LogFilePath {
@@ -51,7 +48,7 @@ public class LogFilePath {
     private String mExtension;
 
     public LogFilePath(String prefix, int generation, long lastCommittedOffset,
-                       ParsedMessage message, String extension) {
+            ParsedMessage message, String extension) {
         mPrefix = prefix;
         mTopic = message.getTopic();
         mPartitions = message.getPartitions();
@@ -61,8 +58,8 @@ public class LogFilePath {
         mExtension = extension;
     }
 
-    public LogFilePath(String prefix, String topic, String[] partitions, int generation,
-                       int kafkaPartition, long offset, String extension) {
+    public LogFilePath(String prefix, String topic, String[] partitions,
+            int generation, int kafkaPartition, long offset, String extension) {
         mPrefix = prefix;
         mTopic = topic;
         mPartitions = partitions;
@@ -72,7 +69,8 @@ public class LogFilePath {
         mExtension = extension;
     }
 
-    private static String[] subArray(String[] array, int startIndex, int endIndex) {
+    private static String[] subArray(String[] array, int startIndex,
+            int endIndex) {
         String[] result = new String[endIndex - startIndex + 1];
         for (int i = startIndex; i <= endIndex; ++i) {
             result[i - startIndex] = array[i];
@@ -81,7 +79,7 @@ public class LogFilePath {
     }
 
     public LogFilePath(String prefix, String path) {
-        assert path.startsWith(prefix): path + ".startsWith(" + prefix + ")";
+        assert path.startsWith(prefix) : path + ".startsWith(" + prefix + ")";
 
         mPrefix = prefix;
 
@@ -91,8 +89,10 @@ public class LogFilePath {
         }
         String suffix = path.substring(prefixLength);
         String[] pathElements = suffix.split("/");
-        // Suffix should contain a topic, at least one partition, and the basename.
-        assert pathElements.length >= 3: Arrays.toString(pathElements) + ".length >= 3";
+        // Suffix should contain a topic, at least one partition, and the
+        // basename.
+        assert pathElements.length >= 3 : Arrays.toString(pathElements)
+                + ".length >= 3";
 
         mTopic = pathElements[0];
         mPartitions = subArray(pathElements, 1, pathElements.length - 2);
@@ -108,7 +108,8 @@ public class LogFilePath {
             mExtension = "";
         }
         String[] basenameElements = basename.split("_");
-        assert basenameElements.length == 3: Integer.toString(basenameElements.length) + " == 3";
+        assert basenameElements.length == 3 : Integer
+                .toString(basenameElements.length) + " == 3";
         mGeneration = Integer.parseInt(basenameElements[0]);
         mKafkaPartition = Integer.parseInt(basenameElements[1]);
         mOffset = Long.parseLong(basenameElements[2]);
@@ -184,17 +185,26 @@ public class LogFilePath {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         LogFilePath that = (LogFilePath) o;
 
-        if (mGeneration != that.mGeneration) return false;
-        if (mKafkaPartition != that.mKafkaPartition) return false;
-        if (mOffset != that.mOffset) return false;
-        if (!Arrays.equals(mPartitions, that.mPartitions)) return false;
-        if (mPrefix != null ? !mPrefix.equals(that.mPrefix) : that.mPrefix != null) return false;
-        if (mTopic != null ? !mTopic.equals(that.mTopic) : that.mTopic != null) return false;
+        if (mGeneration != that.mGeneration)
+            return false;
+        if (mKafkaPartition != that.mKafkaPartition)
+            return false;
+        if (mOffset != that.mOffset)
+            return false;
+        if (!Arrays.equals(mPartitions, that.mPartitions))
+            return false;
+        if (mPrefix != null ? !mPrefix.equals(that.mPrefix)
+                : that.mPrefix != null)
+            return false;
+        if (mTopic != null ? !mTopic.equals(that.mTopic) : that.mTopic != null)
+            return false;
 
         return true;
     }
@@ -203,7 +213,8 @@ public class LogFilePath {
     public int hashCode() {
         int result = mPrefix != null ? mPrefix.hashCode() : 0;
         result = 31 * result + (mTopic != null ? mTopic.hashCode() : 0);
-        result = 31 * result + (mPartitions != null ? Arrays.hashCode(mPartitions) : 0);
+        result = 31 * result
+                + (mPartitions != null ? Arrays.hashCode(mPartitions) : 0);
         result = 31 * result + mGeneration;
         result = 31 * result + mKafkaPartition;
         result = 31 * result + (int) (mOffset ^ (mOffset >>> 32));

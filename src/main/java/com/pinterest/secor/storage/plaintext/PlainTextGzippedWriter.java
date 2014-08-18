@@ -14,56 +14,56 @@ import com.pinterest.secor.storage.Writer;
 
 public class PlainTextGzippedWriter implements Writer {
 
-	private static final Logger LOG = LoggerFactory
-			.getLogger(PlainTextGzippedWriter.class);
+    private static final Logger LOG = LoggerFactory
+            .getLogger(PlainTextGzippedWriter.class);
 
-	private File mTmpFile;
-	private FileOutputStream mFileOutputStream;
-	private GZIPOutputStream mGzipOuputStream;
-	private long mBytesWritten = 0;
+    private File mTmpFile;
+    private FileOutputStream mFileOutputStream;
+    private GZIPOutputStream mGzipOuputStream;
+    private long mBytesWritten = 0;
 
-	public PlainTextGzippedWriter(String destinationFile) throws IOException {
-		mTmpFile = new File(destinationFile);
+    public PlainTextGzippedWriter(String destinationFile) throws IOException {
+        mTmpFile = new File(destinationFile);
 
-		if (!mTmpFile.exists()) {
-			File parentFile = mTmpFile.getParentFile();
-			if (!parentFile.exists() && !parentFile.mkdirs()) {
-				throw new IOException(
-						"Unable to create parent directory for path "
-								+ destinationFile);
-			}
-		}
+        if (!mTmpFile.exists()) {
+            File parentFile = mTmpFile.getParentFile();
+            if (!parentFile.exists() && !parentFile.mkdirs()) {
+                throw new IOException(
+                        "Unable to create parent directory for path "
+                                + destinationFile);
+            }
+        }
 
-		mFileOutputStream = new FileOutputStream(mTmpFile);
-		mGzipOuputStream = new GZIPOutputStream(mFileOutputStream);
-	}
+        mFileOutputStream = new FileOutputStream(mTmpFile);
+        mGzipOuputStream = new GZIPOutputStream(mFileOutputStream);
+    }
 
-	@Override
-	public void close() throws IOException {
-		mGzipOuputStream.close();
-		mGzipOuputStream.finish();
-	}
+    @Override
+    public void close() throws IOException {
+        mGzipOuputStream.close();
+        mGzipOuputStream.finish();
+    }
 
-	@Override
-	public long getLength() throws IOException {
-		return mBytesWritten;
-	}
+    @Override
+    public long getLength() throws IOException {
+        return mBytesWritten;
+    }
 
-	@Override
-	public void append(ParsedMessage message) throws IOException {
+    @Override
+    public void append(ParsedMessage message) throws IOException {
 
-		LOG.debug(
-				"Writing '{}' bytes with offset '{}' in Gzipped Plain Text format.",
-				message.getPayload().length, message.getOffset());
+        LOG.debug(
+                "Writing '{}' bytes with offset '{}' in Gzipped Plain Text format.",
+                message.getPayload().length, message.getOffset());
 
-		byte[] payload = message.getPayload();
-		mGzipOuputStream.write(payload);
-		mGzipOuputStream.write('\n');
-		mBytesWritten += payload.length;
-	}
+        byte[] payload = message.getPayload();
+        mGzipOuputStream.write(payload);
+        mGzipOuputStream.write('\n');
+        mBytesWritten += payload.length;
+    }
 
-	@Override
-	public Object getImpl() {
-		throw new NotImplementedException();
-	}
+    @Override
+    public Object getImpl() {
+        throw new NotImplementedException();
+    }
 }

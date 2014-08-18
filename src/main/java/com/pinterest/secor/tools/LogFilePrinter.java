@@ -28,7 +28,7 @@ import java.io.IOException;
 
 /**
  * Log file printer displays the content of a log file.
- *
+ * 
  * @author Pawel Garbacki (pawel@pinterest.com)
  */
 public class LogFilePrinter {
@@ -41,16 +41,18 @@ public class LogFilePrinter {
     public void printFile(String path) throws Exception {
         FileSystem fileSystem = FileUtil.getFileSystem(path);
         Path fsPath = new Path(path);
-        SequenceFile.Reader reader = new SequenceFile.Reader(fileSystem, fsPath,
-                new Configuration());
+        SequenceFile.Reader reader = new SequenceFile.Reader(fileSystem,
+                fsPath, new Configuration());
         LongWritable key = (LongWritable) reader.getKeyClass().newInstance();
-        BytesWritable value = (BytesWritable) reader.getValueClass().newInstance();
+        BytesWritable value = (BytesWritable) reader.getValueClass()
+                .newInstance();
         System.out.println("reading file " + path);
         while (reader.next(key, value)) {
             if (mPrintOffsetsOnly) {
                 System.out.println(Long.toString(key.get()));
             } else {
-                System.out.println(Long.toString(key.get()) + ": " + new String(value.getBytes()));
+                System.out.println(Long.toString(key.get()) + ": "
+                        + new String(value.getBytes()));
             }
         }
     }

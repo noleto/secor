@@ -33,13 +33,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Partition finalizer writes _SUCCESS files to date partitions that very likely won't be receiving
- * any new messages. It also adds those partitions to Hive.
- *
+ * Partition finalizer writes _SUCCESS files to date partitions that very likely
+ * won't be receiving any new messages. It also adds those partitions to Hive.
+ * 
  * @author Pawel Garbacki (pawel@pinterest.com)
  */
 public class PartitionFinalizer {
-    private static final Logger LOG = LoggerFactory.getLogger(PartitionFinalizer.class);
+    private static final Logger LOG = LoggerFactory
+            .getLogger(PartitionFinalizer.class);
 
     private SecorConfig mConfig;
     private ZookeeperConnector mZookeeperConnector;
@@ -54,15 +55,18 @@ public class PartitionFinalizer {
         mZookeeperConnector = new ZookeeperConnector(mConfig);
         mThriftMessageParser = new ThriftMessageParser(mConfig);
         mQuboleClient = new QuboleClient(mConfig);
-        if (mConfig.getCompressionCodec() != null && !mConfig.getCompressionCodec().isEmpty()) {
-            CompressionCodec codec = (CompressionCodec) ReflectionUtil.createCompressionCodec(mConfig.getCompressionCodec());
+        if (mConfig.getCompressionCodec() != null
+                && !mConfig.getCompressionCodec().isEmpty()) {
+            CompressionCodec codec = (CompressionCodec) ReflectionUtil
+                    .createCompressionCodec(mConfig.getCompressionCodec());
             mFileExtension = codec.getDefaultExtension();
         } else {
             mFileExtension = "";
         }
     }
 
-    private long getLastTimestampMillis(TopicPartition topicPartition) throws TException {
+    private long getLastTimestampMillis(TopicPartition topicPartition)
+            throws TException {
         Message message = mKafkaClient.getLastMessage(topicPartition);
         return mThriftMessageParser.extractTimestampMillis(message);
     }
@@ -83,11 +87,12 @@ public class PartitionFinalizer {
         return max_timestamp;
     }
 
-    private long getCommittedTimestampMillis(TopicPartition topicPartition) throws Exception {
+    private long getCommittedTimestampMillis(TopicPartition topicPartition)
+            throws Exception {
         Message message = mKafkaClient.getCommittedMessage(topicPartition);
         if (message == null) {
-            LOG.error("No message found for topic " + topicPartition.getTopic() + " partition " +
-                    topicPartition.getPartition());
+            LOG.error("No message found for topic " + topicPartition.getTopic()
+                    + " partition " + topicPartition.getPartition());
             return -1;
         }
         return mThriftMessageParser.extractTimestampMillis(message);
@@ -113,14 +118,17 @@ public class PartitionFinalizer {
         return minTimestamp;
     }
 
-    private NavigableSet<Calendar> getPartitions(String topic) throws IOException, ParseException {
-        final String s3Prefix = "s3n://" + mConfig.getS3Bucket() + "/" + mConfig.getS3Path();
-        String[] partitions = {"dt="};
+    private NavigableSet<Calendar> getPartitions(String topic)
+            throws IOException, ParseException {
+        final String s3Prefix = "s3n://" + mConfig.getS3Bucket() + "/"
+                + mConfig.getS3Path();
+        String[] partitions = { "dt=" };
         LogFilePath logFilePath = new LogFilePath(s3Prefix, topic, partitions,
-            mConfig.getGeneration(), 0, 0, mFileExtension);
+                mConfig.getGeneration(), 0, 0, mFileExtension);
         String parentDir = logFilePath.getLogFileParentDir();
         String[] partitionDirs = FileUtil.list(parentDir);
-        Pattern pattern = Pattern.compile(".*/dt=(\\d\\d\\d\\d-\\d\\d-\\d\\d)$");
+        Pattern pattern = Pattern
+                .compile(".*/dt=(\\d\\d\\d\\d-\\d\\d-\\d\\d)$");
         TreeSet<Calendar> result = new TreeSet<Calendar>();
         for (String partitionDir : partitionDirs) {
             Matcher matcher = pattern.matcher(partitionDir);
@@ -128,7 +136,8 @@ public class PartitionFinalizer {
                 String date = matcher.group(1);
                 SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
                 format.setTimeZone(TimeZone.getTimeZone("UTC"));
-                Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+                Calendar calendar = Calendar.getInstance(TimeZone
+                        .getTimeZone("UTC"));
                 calendar.setTime(format.parse(date));
                 result.add(calendar);
             }
@@ -136,20 +145,22 @@ public class PartitionFinalizer {
         return result;
     }
 
-    private void finalizePartitionsUpTo(String topic, Calendar calendar) throws IOException,
-            ParseException, InterruptedException {
-        NavigableSet<Calendar> partitionDates =
-            getPartitions(topic).headSet(calendar, true).descendingSet();
-        final String s3Prefix = "s3n://" + mConfig.getS3Bucket() + "/" + mConfig.getS3Path();
+    private void finalizePartitionsUpTo(String topic, Calendar calendar)
+            throws IOException, ParseException, InterruptedException {
+        NavigableSet<Calendar> partitionDates = getPartitions(topic).headSet(
+                calendar, true).descendingSet();
+        final String s3Prefix = "s3n://" + mConfig.getS3Bucket() + "/"
+                + mConfig.getS3Path();
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         format.setTimeZone(TimeZone.getTimeZone("UTC"));
         for (Calendar partition : partitionDates) {
             String partitionStr = format.format(partition.getTime());
-            String[] partitions = {"dt=" + partitionStr};
-            LogFilePath logFilePath = new LogFilePath(s3Prefix, topic, partitions,
-                mConfig.getGeneration(), 0, 0, mFileExtension);
+            String[] partitions = { "dt=" + partitionStr };
+            LogFilePath logFilePath = new LogFilePath(s3Prefix, topic,
+                    partitions, mConfig.getGeneration(), 0, 0, mFileExtension);
             String logFileDir = logFilePath.getLogFileDir();
-            assert FileUtil.exists(logFileDir) : "FileUtil.exists(" + logFileDir + ")";
+            assert FileUtil.exists(logFileDir) : "FileUtil.exists("
+                    + logFileDir + ")";
             String successFilePath = logFileDir + "/_SUCCESS";
             if (FileUtil.exists(successFilePath)) {
                 return;
@@ -157,8 +168,8 @@ public class PartitionFinalizer {
             try {
                 mQuboleClient.addPartition(topic, "dt='" + partitionStr + "'");
             } catch (Exception e) {
-                LOG.error("failed to finalize topic " + topic + " partition dt=" + partitionStr,
-                        e);
+                LOG.error("failed to finalize topic " + topic
+                        + " partition dt=" + partitionStr, e);
                 continue;
             }
             LOG.info("touching file " + successFilePath);
@@ -167,20 +178,24 @@ public class PartitionFinalizer {
     }
 
     /**
-     * Get finalized timestamp for a given topic partition. Finalized timestamp is the current time
-     * if the last offset for that topic partition has been committed earlier than an hour ago.
-     * Otherwise, finalized timestamp is the committed timestamp.
-     *
-     * @param topicPartition The topic partition for which we want to compute the finalized
-     *                       timestamp.
+     * Get finalized timestamp for a given topic partition. Finalized timestamp
+     * is the current time if the last offset for that topic partition has been
+     * committed earlier than an hour ago. Otherwise, finalized timestamp is the
+     * committed timestamp.
+     * 
+     * @param topicPartition
+     *            The topic partition for which we want to compute the finalized
+     *            timestamp.
      * @return The finalized timestamp for the topic partition.
      * @throws Exception
      */
-    private long getFinalizedTimestampMillis(TopicPartition topicPartition) throws Exception {
+    private long getFinalizedTimestampMillis(TopicPartition topicPartition)
+            throws Exception {
         long lastTimestamp = getLastTimestampMillis(topicPartition);
         long committedTimestamp = getCommittedTimestampMillis(topicPartition);
         long now = System.currentTimeMillis();
-        if (lastTimestamp == committedTimestamp && (now - lastTimestamp) > 3600 * 1000) {
+        if (lastTimestamp == committedTimestamp
+                && (now - lastTimestamp) > 3600 * 1000) {
             return now;
         }
         return committedTimestamp;
@@ -192,8 +207,8 @@ public class PartitionFinalizer {
         for (int partition = 0; partition < numPartitions; ++partition) {
             TopicPartition topicPartition = new TopicPartition(topic, partition);
             long timestamp = getFinalizedTimestampMillis(topicPartition);
-            LOG.info("finalized timestamp for topic " + topic + " partition " + partition +
-                    " is " + timestamp);
+            LOG.info("finalized timestamp for topic " + topic + " partition "
+                    + partition + " is " + timestamp);
             if (timestamp == -1) {
                 return -1;
             } else {
@@ -216,10 +231,11 @@ public class PartitionFinalizer {
             } else {
                 LOG.info("finalizing topic " + topic);
                 long finalizedTimestampMillis = getFinalizedTimestampMillis(topic);
-                LOG.info("finalized timestamp for topic " + topic + " is " +
-                        finalizedTimestampMillis);
+                LOG.info("finalized timestamp for topic " + topic + " is "
+                        + finalizedTimestampMillis);
                 if (finalizedTimestampMillis != -1) {
-                    Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+                    Calendar calendar = Calendar.getInstance(TimeZone
+                            .getTimeZone("UTC"));
                     calendar.setTimeInMillis(finalizedTimestampMillis);
                     // Introduce a lag of one day and one hour.
                     calendar.add(Calendar.HOUR, -1);

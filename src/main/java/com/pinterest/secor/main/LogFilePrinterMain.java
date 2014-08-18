@@ -25,30 +25,27 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Log file printer main.
- *
- * Run:
- *     $ cd optimus/secor
- *     $ mvn package
- *     $ cd target
- *     $ java -ea -Dlog4j.configuration=log4j.dev.properties -Dconfig=secor.dev.backup.properties \
- *         -cp "secor-0.1-SNAPSHOT.jar:lib/*" com.pinterest.secor.main.LogFilePrinterMain -f \
- *         s3n://bucket/path
- *
+ * 
+ * Run: $ cd optimus/secor $ mvn package $ cd target $ java -ea
+ * -Dlog4j.configuration=log4j.dev.properties
+ * -Dconfig=secor.dev.backup.properties \ -cp "secor-0.1-SNAPSHOT.jar:lib/*"
+ * com.pinterest.secor.main.LogFilePrinterMain -f \ s3n://bucket/path
+ * 
  * @author Pawel Garbacki (pawel@pinterest.com)
  */
 public class LogFilePrinterMain {
-    private static final Logger LOG = LoggerFactory.getLogger(LogFilePrinterMain.class);
+    private static final Logger LOG = LoggerFactory
+            .getLogger(LogFilePrinterMain.class);
 
     private static CommandLine parseArgs(String[] args) throws ParseException {
         Options options = new Options();
         options.addOption(OptionBuilder.withLongOpt("file")
-                .withDescription("sequence file to read")
-                .hasArg()
-                .withArgName("<sequence_file_name>")
-                .withType(String.class)
+                .withDescription("sequence file to read").hasArg()
+                .withArgName("<sequence_file_name>").withType(String.class)
                 .create("f"));
-        options.addOption("o", "print_offsets_only", false, "whether to print only offsets " +
-                "ignoring the message payload");
+        options.addOption("o", "print_offsets_only", false,
+                "whether to print only offsets "
+                        + "ignoring the message payload");
 
         CommandLineParser parser = new GnuParser();
         return parser.parse(options, args);

@@ -16,8 +16,6 @@
  */
 package com.pinterest.secor.consumer;
 
-import java.io.IOException;
-
 import kafka.consumer.ConsumerTimeoutException;
 
 import org.slf4j.Logger;
@@ -47,96 +45,97 @@ import com.pinterest.secor.writer.MessageWriter;
  * @author Pawel Garbacki (pawel@pinterest.com)
  */
 public class Consumer extends Thread {
-	private static final Logger LOG = LoggerFactory.getLogger(Consumer.class);
-	
-	private final double DECAY = 0.999;
+    private static final Logger LOG = LoggerFactory.getLogger(Consumer.class);
 
-	private SecorConfig mConfig;
+    private final double DECAY = 0.999;
 
-	private MessageReader mMessageReader;
-	private MessageWriter mMessageWriter;
-	private MessageParser mMessageParser;
-	private Uploader mUploader;
-	// TODO(pawel): we should keep a count per topic partition.
-	private double mUnparsableMessages;
+    private SecorConfig mConfig;
 
-	public Consumer(SecorConfig config) {
-		mConfig = config;
-	}
+    private MessageReader mMessageReader;
+    private MessageWriter mMessageWriter;
+    private MessageParser mMessageParser;
+    private Uploader mUploader;
+    // TODO(pawel): we should keep a count per topic partition.
+    private double mUnparsableMessages;
 
-	private void init() throws Exception {
-		OffsetTracker offsetTracker = new OffsetTracker();
-		mMessageReader = new MessageReader(mConfig, offsetTracker);
-		
-		FileRegistry fileRegistry = new FileRegistry();
-		StorageFactory storageFactory = (StorageFactory) ReflectionUtil
-				.createStorageFactory(mConfig.getStorageFactoryClassOrDefault(), mConfig);
+    public Consumer(SecorConfig config) {
+        mConfig = config;
+    }
 
-		mMessageWriter = new MessageWriter(mConfig, offsetTracker,
-				fileRegistry, storageFactory);
-		mMessageParser = (MessageParser) ReflectionUtil.createMessageParser(
-				mConfig.getMessageParserClass(), mConfig);
-		mUploader = new Uploader(mConfig, offsetTracker, fileRegistry,
-				storageFactory);
-		mUnparsableMessages = 0.;
-	}
+    private void init() throws Exception {
+        OffsetTracker offsetTracker = new OffsetTracker();
+        mMessageReader = new MessageReader(mConfig, offsetTracker);
 
-	@Override
-	public void run() {
-		try {
-			// init() cannot be called in the constructor since it contains
-			// logic dependent on the
-			// thread id.
-			init();
-		} catch (Exception e) {
-			throw new RuntimeException("Failed to initialize the consumer", e);
-		}
-		while (true) {
-			Message rawMessage = null;
-			try {
-				boolean hasNext = mMessageReader.hasNext();
-				if (!hasNext) {
-					return;
-				}
-				rawMessage = mMessageReader.read();
-			} catch (ConsumerTimeoutException e) {
-				// We wait for a new message with a timeout to periodically
-				// apply the upload policy
-				// even if no messages are delivered.
-				LOG.trace("Consumer timed out", e);
-			}
-			if (rawMessage != null) {
-				ParsedMessage parsedMessage = null;
-				try {
-					parsedMessage = mMessageParser.parse(rawMessage);
-					mUnparsableMessages *= DECAY;
-				} catch (Exception e) {
-					mUnparsableMessages++;
-					final double MAX_UNPARSABLE_MESSAGES = 1000.;
-					if (mUnparsableMessages > MAX_UNPARSABLE_MESSAGES) {
-						throw new RuntimeException("Failed to parse message "
-								+ rawMessage, e);
-					}
-					LOG.warn("Failed to parse message " + rawMessage, e);
-					continue;
-				}
-				if (parsedMessage != null) {
-					try {
-						mMessageWriter.write(parsedMessage);
-					} catch (IOException e) {
-						throw new RuntimeException("Failed to write message "
-								+ parsedMessage, e);
-					}
-				}
-			}
-			// TODO(pawel): it may make sense to invoke the uploader less
-			// frequently than after
-			// each message.
-			try {
-				mUploader.applyPolicy();
-			} catch (Exception e) {
-				throw new RuntimeException("Failed to apply upload policy", e);
-			}
-		}
-	}
+        FileRegistry fileRegistry = new FileRegistry();
+        StorageFactory storageFactory = (StorageFactory) ReflectionUtil
+                .createStorageFactory(
+                        mConfig.getStorageFactoryClassOrDefault(), mConfig);
+
+        mMessageWriter = new MessageWriter(mConfig, offsetTracker,
+                fileRegistry, storageFactory);
+        mMessageParser = (MessageParser) ReflectionUtil.createMessageParser(
+                mConfig.getMessageParserClass(), mConfig);
+        mUploader = new Uploader(mConfig, offsetTracker, fileRegistry,
+                storageFactory);
+        mUnparsableMessages = 0.;
+    }
+
+    @Override
+    public void run() {
+        try {
+            // init() cannot be called in the constructor since it contains
+            // logic dependent on the
+            // thread id.
+            init();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize the consumer", e);
+        }
+        while (true) {
+            Message rawMessage = null;
+            try {
+                boolean hasNext = mMessageReader.hasNext();
+                if (!hasNext) {
+                    return;
+                }
+                rawMessage = mMessageReader.read();
+            } catch (ConsumerTimeoutException e) {
+                // We wait for a new message with a timeout to periodically
+                // apply the upload policy
+                // even if no messages are delivered.
+                LOG.trace("Consumer timed out", e);
+            }
+            if (rawMessage != null) {
+                ParsedMessage parsedMessage = null;
+                try {
+                    parsedMessage = mMessageParser.parse(rawMessage);
+                    mUnparsableMessages *= DECAY;
+                } catch (Exception e) {
+                    mUnparsableMessages++;
+                    final double MAX_UNPARSABLE_MESSAGES = 1000.;
+                    if (mUnparsableMessages > MAX_UNPARSABLE_MESSAGES) {
+                        throw new RuntimeException("Failed to parse message "
+                                + rawMessage, e);
+                    }
+                    LOG.warn("Failed to parse message " + rawMessage, e);
+                    continue;
+                }
+                if (parsedMessage != null) {
+                    try {
+                        mMessageWriter.write(parsedMessage);
+                    } catch (Exception e) {
+                        throw new RuntimeException("Failed to write message "
+                                + parsedMessage, e);
+                    }
+                }
+            }
+            // TODO(pawel): it may make sense to invoke the uploader less
+            // frequently than after
+            // each message.
+            try {
+                mUploader.applyPolicy();
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to apply upload policy", e);
+            }
+        }
+    }
 }

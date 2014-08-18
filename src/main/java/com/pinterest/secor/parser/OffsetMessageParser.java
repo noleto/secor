@@ -21,7 +21,7 @@ import com.pinterest.secor.message.Message;
 
 /**
  * Offset message parser groups messages based on the offset ranges.
- *
+ * 
  * @author Pawel Garbacki (pawel@pinterest.com)
  */
 public class OffsetMessageParser extends MessageParser {
@@ -34,7 +34,7 @@ public class OffsetMessageParser extends MessageParser {
         long offset = message.getOffset();
         long offsetsPerPartition = mConfig.getOffsetsPerPartition();
         long partition = (offset / offsetsPerPartition) * offsetsPerPartition;
-        String[] result = {"offset=" + partition};
+        String[] result = { "offset=" + partition };
         return result;
     }
 }

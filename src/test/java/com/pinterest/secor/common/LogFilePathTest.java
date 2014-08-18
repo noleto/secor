@@ -23,37 +23,36 @@ import java.util.Arrays;
 
 /**
  * LogFileTest tests the logic operating on lof file paths.
- *
+ * 
  * @author Pawel Garbacki (pawel@pinterest.com)
  */
 public class LogFilePathTest extends TestCase {
     private static final String PREFIX = "/some_parent_dir";
     private static final String TOPIC = "some_topic";
-    private static final String[] PARTITIONS = {"some_partition", "some_other_partition"};
+    private static final String[] PARTITIONS = { "some_partition",
+            "some_other_partition" };
     private static final int GENERATION = 10;
     private static final int KAFKA_PARTITION = 0;
     private static final long LAST_COMMITTED_OFFSET = 100;
-    private static final String PATH =
-        "/some_parent_dir/some_topic/some_partition/some_other_partition/" +
-        "10_0_00000000000000000100";
-    private static final String CRC_PATH =
-            "/some_parent_dir/some_topic/some_partition/some_other_partition/" +
-            ".10_0_00000000000000000100.crc";
+    private static final String PATH = "/some_parent_dir/some_topic/some_partition/some_other_partition/"
+            + "10_0_00000000000000000100";
+    private static final String CRC_PATH = "/some_parent_dir/some_topic/some_partition/some_other_partition/"
+            + ".10_0_00000000000000000100.crc";
 
     private LogFilePath mLogFilePath;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        mLogFilePath = new LogFilePath(PREFIX, TOPIC, PARTITIONS, GENERATION, KAFKA_PARTITION,
-                                       LAST_COMMITTED_OFFSET, "");
+        mLogFilePath = new LogFilePath(PREFIX, TOPIC, PARTITIONS, GENERATION,
+                KAFKA_PARTITION, LAST_COMMITTED_OFFSET, "");
     }
 
     public void testConstructFromMessage() throws Exception {
         ParsedMessage message = new ParsedMessage(TOPIC, KAFKA_PARTITION, 1000,
-                                                  "some_payload".getBytes(), PARTITIONS);
-        LogFilePath logFilePath = new LogFilePath(PREFIX, GENERATION, LAST_COMMITTED_OFFSET,
-                                                  message, "");
+                "some_payload".getBytes(), PARTITIONS);
+        LogFilePath logFilePath = new LogFilePath(PREFIX, GENERATION,
+                LAST_COMMITTED_OFFSET, message, "");
         assertEquals(PATH, logFilePath.getLogFilePath());
     }
 

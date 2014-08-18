@@ -20,9 +20,9 @@ import java.lang.String;
 import java.util.Arrays;
 
 /**
- * Parsed message is a Kafka message that has been processed by the parser that extracted its
- * partitions.
- *
+ * Parsed message is a Kafka message that has been processed by the parser that
+ * extracted its partitions.
+ * 
  * @author Pawel Garbacki (pawel@pinterest.com)
  */
 public class ParsedMessage extends Message {
@@ -30,12 +30,12 @@ public class ParsedMessage extends Message {
 
     @Override
     public String toString() {
-        return "ParsedMessage{" + fieldsToString() +  ", mPartitions=" +
-               Arrays.toString(mPartitions) + '}';
+        return "ParsedMessage{" + fieldsToString() + ", mPartitions="
+                + Arrays.toString(mPartitions) + '}';
     }
 
-    public ParsedMessage(String topic, int kafkaPartition, long offset, byte[] payload,
-                         String[] mPartitions) {
+    public ParsedMessage(String topic, int kafkaPartition, long offset,
+            byte[] payload, String[] mPartitions) {
         super(topic, kafkaPartition, offset, payload);
         this.mPartitions = mPartitions;
     }

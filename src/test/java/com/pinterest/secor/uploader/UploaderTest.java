@@ -21,7 +21,6 @@ import java.util.HashSet;
 import junit.framework.TestCase;
 
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
@@ -49,7 +48,7 @@ import com.pinterest.secor.util.IdUtil;
  * @author Pawel Garbacki (pawel@pinterest.com)
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ FileUtil.class, FileSystem.class, IdUtil.class })
+@PrepareForTest({FileUtil.class, FileSystem.class, IdUtil.class})
 public class UploaderTest extends TestCase {
 
 	private TopicPartition mTopicPartition;
@@ -106,7 +105,8 @@ public class UploaderTest extends TestCase {
 				return true;
 			}
 		});
-		Mockito.when(storageFactory.createReader(Mockito.any(Path.class)))
+		Mockito.when(
+				storageFactory.createReader(Mockito.any(LogFilePath.class)))
 				.thenReturn(reader);
 
 		Mockito.when(storageFactory.supportsTrim()).thenReturn(true);

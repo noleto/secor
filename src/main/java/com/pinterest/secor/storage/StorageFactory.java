@@ -18,7 +18,7 @@ package com.pinterest.secor.storage;
 
 import java.io.IOException;
 
-import org.apache.hadoop.fs.Path;
+import com.pinterest.secor.common.LogFilePath;
 
 /**
  * Base marker for a storage type. Messages are consumed from Kafka, parsed and
@@ -29,9 +29,9 @@ import org.apache.hadoop.fs.Path;
  */
 public interface StorageFactory {
 
-	Writer createWriter(Path fsPath) throws IOException;
+	Writer createWriter(LogFilePath path) throws IOException;
 
-	Reader createReader(Path path) throws Exception;
+	Reader createReader(LogFilePath path) throws Exception;
 
 	/**
 	 * Tells if the storage format supports the process of trimming. Trimming a

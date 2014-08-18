@@ -18,8 +18,6 @@ package com.pinterest.secor.uploader;
 
 import java.util.Collection;
 
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.compress.CompressionCodec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +33,6 @@ import com.pinterest.secor.storage.StorageFactory;
 import com.pinterest.secor.storage.Writer;
 import com.pinterest.secor.util.FileUtil;
 import com.pinterest.secor.util.IdUtil;
-import com.pinterest.secor.util.ReflectionUtil;
 
 /**
  * Uploader applies a set of policies to determine if any of the locally stored
@@ -121,9 +118,6 @@ public class Uploader {
 			return;
 		}
 
-		String srcFilename = srcPath.getLogFilePath();
-		Path srcFsPath = new Path(srcFilename);
-
 		Reader reader = null;
 		Writer writer = null;
 		LogFilePath dstPath = null;
@@ -132,16 +126,8 @@ public class Uploader {
 		// the disk.
 		mFileRegistry.deleteWriter(srcPath);
 		try {
-			CompressionCodec codec = null;
-			String extension = "";
-			if (mConfig.getCompressionCodec() != null
-					&& !mConfig.getCompressionCodec().isEmpty()) {
-				codec = (CompressionCodec) ReflectionUtil
-						.createCompressionCodec(mConfig.getCompressionCodec());
-				extension = codec.getDefaultExtension();
-			}
 
-			reader = mStorageFactory.createReader(srcFsPath);
+			reader = mStorageFactory.createReader(srcPath);
 			while (reader.next()) {
 				if (reader.getOffset() >= startOffset) {
 					if (writer == null) {
@@ -151,7 +137,7 @@ public class Uploader {
 								srcPath.getTopic(), srcPath.getPartitions(),
 								srcPath.getGeneration(),
 								srcPath.getKafkaPartition(), startOffset,
-								extension);
+								mStorageFactory.getFileExtension());
 
 						writer = mFileRegistry.getOrCreateWriter(
 								mStorageFactory, dstPath);
@@ -176,8 +162,9 @@ public class Uploader {
 			LOG.info("removed file " + srcPath.getLogFilePath());
 		} else {
 			LOG.info("trimmed " + copiedMessages + " messages from "
-					+ srcFilename + " to " + dstPath.getLogFilePath()
-					+ " with start offset " + startOffset);
+					+ srcPath.getLogFilePath() + " to "
+					+ dstPath.getLogFilePath() + " with start offset "
+					+ startOffset);
 		}
 	}
 
@@ -230,9 +217,9 @@ public class Uploader {
 					// of the current message. We need to trim local files.
 					trimFiles(topicPartition, newOffsetCount);
 				} else {
-					LOG.warn("Be careful: A rebalancing was occured but current storage does not support trimming file!");
+					LOG.warn("Be careful: A rebalancing was occured but current storage does not support trimming file! Deleting instead...");
+					mFileRegistry.deleteTopicPartition(topicPartition);
 				}
-
 			}
 		}
 	}

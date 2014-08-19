@@ -16,10 +16,11 @@
  */
 package com.pinterest.secor.parser;
 
+import java.io.UnsupportedEncodingException;
+
+import com.jayway.jsonpath.JsonPath;
 import com.pinterest.secor.common.SecorConfig;
 import com.pinterest.secor.message.Message;
-import net.minidev.json.JSONObject;
-import net.minidev.json.JSONValue;
 
 /**
  * JsonMessageParser extracts timestamp field (specified by
@@ -31,13 +32,14 @@ public class JsonMessageParser extends TimestampedMessageParser {
     }
 
     @Override
-    public long extractTimestampMillis(final Message message)
-            throws ClassCastException {
-        JSONObject jsonObject = (JSONObject) JSONValue.parse(message
-                .getPayload());
-        if (jsonObject != null) {
-            Object fieldValue = jsonObject.get(mConfig
-                    .getMessageTimestampName());
+    public long extractTimestampMillis(final Message message) throws Exception,
+            UnsupportedEncodingException {
+        byte[] json = message.getPayload();
+
+        if (json != null && json.length > 0) {
+            String timestampFieldPath = mConfig.getMessageTimestampName();
+            Object fieldValue = JsonPath.read(new String(json, "UTF-8"), "$."
+                    + timestampFieldPath);
             if (fieldValue != null) {
                 long timestamp = 0;
                 if (fieldValue instanceof Number) {
@@ -54,6 +56,9 @@ public class JsonMessageParser extends TimestampedMessageParser {
                 }
                 return toMillis(timestamp);
             }
+        } else {
+            throw new Exception(
+                    "Unable to extract timestamp field from an empty message!");
         }
         return 0;
     }

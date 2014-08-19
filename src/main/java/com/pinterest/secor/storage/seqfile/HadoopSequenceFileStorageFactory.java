@@ -25,8 +25,6 @@ import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.compress.CompressionCodec;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.pinterest.secor.common.LogFilePath;
 import com.pinterest.secor.common.SecorConfig;
@@ -41,9 +39,6 @@ import com.pinterest.secor.util.ReflectionUtil;
  * 
  */
 public class HadoopSequenceFileStorageFactory implements StorageFactory {
-
-    private static final Logger LOG = LoggerFactory
-            .getLogger(HadoopSequenceFileStorageFactory.class);
 
     private String mFileExtension;
     private CompressionCodec mCodec;

@@ -52,7 +52,6 @@ public class OstrichAdminService {
     public void start() {
         Duration[] defaultLatchIntervals = { Duration
                 .apply(1, TimeUnit.MINUTES) };
-        @SuppressWarnings("deprecation")
         AdminServiceFactory adminServiceFactory = new AdminServiceFactory(
                 this.mPort, 20, List$.MODULE$.<StatsFactory> empty(),
                 Option.<String> empty(), List$.MODULE$.<Regex> empty(),

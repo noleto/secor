@@ -45,8 +45,6 @@ public class Uploader {
     private final FileRegistry mFileRegistry;
     private final ZookeeperConnector mZookeeperConnector;
 
-    private final StorageFactory mStorageFactory;
-
     public Uploader(SecorConfig config, OffsetTracker offsetTracker,
             FileRegistry fileRegistry, StorageFactory storageFactory) {
         this(config, offsetTracker, fileRegistry,
@@ -61,7 +59,6 @@ public class Uploader {
         mOffsetTracker = offsetTracker;
         mFileRegistry = fileRegistry;
         mZookeeperConnector = zookeeperConnector;
-        this.mStorageFactory = storageFactory;
     }
 
     private void upload(LogFilePath localPath) throws Exception {

@@ -24,7 +24,6 @@ import com.pinterest.secor.common.LogFilePath;
 import com.pinterest.secor.common.OffsetTracker;
 import com.pinterest.secor.common.SecorConfig;
 import com.pinterest.secor.common.TopicPartition;
-import com.pinterest.secor.common.ZookeeperConnector;
 import com.pinterest.secor.message.ParsedMessage;
 import com.pinterest.secor.storage.StorageFactory;
 import com.pinterest.secor.storage.Writer;
@@ -43,7 +42,6 @@ public class MessageWriter {
     private final SecorConfig mConfig;
     private final OffsetTracker mOffsetTracker;
     private final FileRegistry mFileRegistry;
-    private final ZookeeperConnector mZookeeperConnector;
 
     private final StorageFactory mStorageFactory;
 
@@ -54,7 +52,6 @@ public class MessageWriter {
         mOffsetTracker = offsetTracker;
         mFileRegistry = fileRegistry;
         mStorageFactory = storageFactory;
-        mZookeeperConnector = new ZookeeperConnector(config);
     }
 
     private void adjustOffset(ParsedMessage message) throws Exception {

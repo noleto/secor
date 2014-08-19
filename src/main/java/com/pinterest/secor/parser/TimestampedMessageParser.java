@@ -16,16 +16,38 @@
  */
 package com.pinterest.secor.parser;
 
-import com.pinterest.secor.common.SecorConfig;
-import com.pinterest.secor.message.Message;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
+import org.apache.commons.lang.StringUtils;
+
+import com.pinterest.secor.common.SecorConfig;
+import com.pinterest.secor.message.Message;
+
 public abstract class TimestampedMessageParser extends MessageParser {
+
+    private final SimpleDateFormat mPartitionFormat;
+
+    private final String mPartitionPrefix;
+
     public TimestampedMessageParser(SecorConfig config) {
         super(config);
+
+        String partitionDateFormat = config.getPartitionDateFormat();
+        if (StringUtils.isNotBlank(partitionDateFormat)) {
+            mPartitionFormat = new SimpleDateFormat(partitionDateFormat);
+        } else {
+            mPartitionFormat = new SimpleDateFormat("yyyy-MM-dd");
+        }
+        mPartitionFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        String partitionPrefix = config.getPartitionPrefix();
+        if (partitionPrefix != null) {
+            mPartitionPrefix = partitionPrefix;
+        } else {
+            mPartitionPrefix = "dt=";
+        }
     }
 
     abstract protected long extractTimestampMillis(final Message message)
@@ -50,9 +72,8 @@ public abstract class TimestampedMessageParser extends MessageParser {
         // Date constructor takes milliseconds since epoch.
         long timestampMillis = extractTimestampMillis(message);
         Date date = new Date(timestampMillis);
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        format.setTimeZone(TimeZone.getTimeZone("UTC"));
-        String result[] = { "dt=" + format.format(date) };
+
+        String result[] = { mPartitionPrefix + mPartitionFormat.format(date) };
         return result;
     }
 }

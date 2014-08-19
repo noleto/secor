@@ -172,6 +172,14 @@ public class SecorConfig {
         return getString("message.timestamp.input.pattern");
     }
 
+    public String getPartitionDateFormat() {
+        return getString("partition.date.format");
+    }
+
+    public String getPartitionPrefix() {
+        return getString("partition.prefix");
+    }
+
     public String getCompressionCodec() {
         return getString("secor.compression.codec");
     }

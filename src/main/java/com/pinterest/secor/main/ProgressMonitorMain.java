@@ -16,10 +16,11 @@
  */
 package com.pinterest.secor.main;
 
-import com.pinterest.secor.common.SecorConfig;
-import com.pinterest.secor.tools.ProgressMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.pinterest.secor.common.SecorConfig;
+import com.pinterest.secor.tools.ProgressMonitor;
 
 /**
  * Progress monitor main.

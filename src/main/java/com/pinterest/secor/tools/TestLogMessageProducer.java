@@ -16,16 +16,18 @@
  */
 package com.pinterest.secor.tools;
 
+import java.util.Properties;
+
 import kafka.javaapi.producer.Producer;
 import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
+
 import org.apache.thrift.TException;
 import org.apache.thrift.TSerializer;
 import org.apache.thrift.protocol.TBinaryProtocol;
-import com.pinterest.secor.thrift.TestMessage;
-import com.pinterest.secor.thrift.TestEnum;
 
-import java.util.Properties;
+import com.pinterest.secor.thrift.TestEnum;
+import com.pinterest.secor.thrift.TestMessage;
 
 /**
  * Test log message producer generates test messages and submits them to kafka.

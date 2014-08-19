@@ -16,21 +16,30 @@
  */
 package com.pinterest.secor.parser;
 
-import com.pinterest.secor.common.*;
-import com.pinterest.secor.message.Message;
-import com.pinterest.secor.util.FileUtil;
-import com.pinterest.secor.util.ReflectionUtil;
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.List;
+import java.util.NavigableSet;
+import java.util.TimeZone;
+import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.pinterest.secor.common.KafkaClient;
+import com.pinterest.secor.common.LogFilePath;
+import com.pinterest.secor.common.SecorConfig;
+import com.pinterest.secor.common.TopicPartition;
+import com.pinterest.secor.common.ZookeeperConnector;
+import com.pinterest.secor.message.Message;
+import com.pinterest.secor.util.FileUtil;
+import com.pinterest.secor.util.ReflectionUtil;
 
 /**
  * Partition finalizer writes _SUCCESS files to date partitions that very likely

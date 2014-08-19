@@ -45,9 +45,9 @@ public class OstrichAdminService {
             .getLogger(OstrichAdminService.class);
     private final int mPort;
 
-	public OstrichAdminService(int port) {
-		this.mPort = port;
-	}
+    public OstrichAdminService(int port) {
+        this.mPort = port;
+    }
 
     public void start() {
         Duration[] defaultLatchIntervals = { Duration
@@ -68,7 +68,7 @@ public class OstrichAdminService {
                     "unknown");
             LOG.info("build.properties build_revision: {}",
                     properties.getProperty("build_revision", "unknown"));
-			StatsUtil.setRawLabel("build_revision", buildRevision);
+            StatsUtil.setRawLabel("build_revision", buildRevision);
         } catch (Throwable t) {
             LOG.error("Failed to load properties from build.properties", t);
         }

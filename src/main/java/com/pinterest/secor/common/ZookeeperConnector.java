@@ -16,11 +16,11 @@
  */
 package com.pinterest.secor.common;
 
-import com.twitter.common.quantity.Amount;
-import com.twitter.common.quantity.Time;
-import com.twitter.common.zookeeper.DistributedLock;
-import com.twitter.common.zookeeper.DistributedLockImpl;
-import com.twitter.common.zookeeper.ZooKeeperClient;
+import java.net.InetSocketAddress;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
@@ -28,10 +28,11 @@ import org.apache.zookeeper.ZooKeeper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetSocketAddress;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import com.twitter.common.quantity.Amount;
+import com.twitter.common.quantity.Time;
+import com.twitter.common.zookeeper.DistributedLock;
+import com.twitter.common.zookeeper.DistributedLockImpl;
+import com.twitter.common.zookeeper.ZooKeeperClient;
 
 /**
  * ZookeeperConnector implements interactions with Zookeeper.

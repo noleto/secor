@@ -100,8 +100,8 @@ public class OffsetTracker {
         assert trueCommittedOffsetCount <= count : Long
                 .toString(trueCommittedOffsetCount) + " <= " + count;
 
-		StatsUtil.setLabel(topicPartition, "committed_offset",
-				String.valueOf(count));
+        StatsUtil.setLabel(topicPartition, "committed_offset",
+                String.valueOf(count));
 
         mCommittedOffsetCount.put(topicPartition, count);
         return trueCommittedOffsetCount;

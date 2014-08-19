@@ -16,23 +16,29 @@
  */
 package com.pinterest.secor.tools;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import net.minidev.json.JSONObject;
+import net.minidev.json.JSONValue;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.pinterest.secor.common.KafkaClient;
 import com.pinterest.secor.common.SecorConfig;
 import com.pinterest.secor.common.TopicPartition;
 import com.pinterest.secor.common.ZookeeperConnector;
 import com.pinterest.secor.message.Message;
 import com.pinterest.secor.parser.ThriftMessageParser;
-import net.minidev.json.JSONObject;
-import net.minidev.json.JSONValue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Progress monitor exports offset lags per topic partition.

@@ -76,43 +76,43 @@ public class Uploader {
                 + s3Path.getLogFilePath());
         FileUtil.moveToS3(localLogFilename, s3Path.getLogFilePath());
 
-		TopicPartition topicPartition = new TopicPartition(
-				localPath.getTopic(), localPath.getKafkaPartition());
-		StatsUtil.incCounter(topicPartition, "s3_uploads");
+        TopicPartition topicPartition = new TopicPartition(
+                localPath.getTopic(), localPath.getKafkaPartition());
+        StatsUtil.incCounter(topicPartition, "s3_uploads");
     }
 
-	private void uploadFiles(TopicPartition topicPartition) throws Exception {
-		long committedOffsetCount = mOffsetTracker
-				.getTrueCommittedOffsetCount(topicPartition);
-		long lastSeenOffset = mOffsetTracker.getLastSeenOffset(topicPartition);
-		final String lockPath = "/secor/locks/" + topicPartition.getTopic()
-				+ "/" + topicPartition.getPartition();
-		// Deleting writers closes their streams flushing all pending data to
-		// the disk.
-		mFileRegistry.deleteWriters(topicPartition);
-		mZookeeperConnector.lock(lockPath);
-		try {
-			// Check if the committed offset has changed.
-			long zookeeperComittedOffsetCount = mZookeeperConnector
-					.getCommittedOffsetCount(topicPartition);
-			if (zookeeperComittedOffsetCount == committedOffsetCount) {
-				LOG.info("uploading topic " + topicPartition.getTopic()
-						+ " partition " + topicPartition.getPartition());
-				Collection<LogFilePath> paths = mFileRegistry
-						.getPaths(topicPartition);
-				for (LogFilePath path : paths) {
-					upload(path);
-				}
-				mFileRegistry.deleteTopicPartition(topicPartition);
-				mZookeeperConnector.setCommittedOffsetCount(topicPartition,
-						lastSeenOffset + 1);
-				mOffsetTracker.setCommittedOffsetCount(topicPartition,
-						lastSeenOffset + 1);
-			}
-		} finally {
-			mZookeeperConnector.unlock(lockPath);
-		}
-	}
+    private void uploadFiles(TopicPartition topicPartition) throws Exception {
+        long committedOffsetCount = mOffsetTracker
+                .getTrueCommittedOffsetCount(topicPartition);
+        long lastSeenOffset = mOffsetTracker.getLastSeenOffset(topicPartition);
+        final String lockPath = "/secor/locks/" + topicPartition.getTopic()
+                + "/" + topicPartition.getPartition();
+        // Deleting writers closes their streams flushing all pending data to
+        // the disk.
+        mFileRegistry.deleteWriters(topicPartition);
+        mZookeeperConnector.lock(lockPath);
+        try {
+            // Check if the committed offset has changed.
+            long zookeeperComittedOffsetCount = mZookeeperConnector
+                    .getCommittedOffsetCount(topicPartition);
+            if (zookeeperComittedOffsetCount == committedOffsetCount) {
+                LOG.info("uploading topic " + topicPartition.getTopic()
+                        + " partition " + topicPartition.getPartition());
+                Collection<LogFilePath> paths = mFileRegistry
+                        .getPaths(topicPartition);
+                for (LogFilePath path : paths) {
+                    upload(path);
+                }
+                mFileRegistry.deleteTopicPartition(topicPartition);
+                mZookeeperConnector.setCommittedOffsetCount(topicPartition,
+                        lastSeenOffset + 1);
+                mOffsetTracker.setCommittedOffsetCount(topicPartition,
+                        lastSeenOffset + 1);
+            }
+        } finally {
+            mZookeeperConnector.unlock(lockPath);
+        }
+    }
 
     private void checkTopicPartition(TopicPartition topicPartition)
             throws Exception {

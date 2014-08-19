@@ -16,10 +16,16 @@
  */
 package com.pinterest.secor.tools;
 
-import com.pinterest.secor.common.LogFilePath;
-import com.pinterest.secor.common.SecorConfig;
-import com.pinterest.secor.common.TopicPartition;
-import com.pinterest.secor.util.FileUtil;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -27,8 +33,10 @@ import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
 
-import java.io.IOException;
-import java.util.*;
+import com.pinterest.secor.common.LogFilePath;
+import com.pinterest.secor.common.SecorConfig;
+import com.pinterest.secor.common.TopicPartition;
+import com.pinterest.secor.util.FileUtil;
 
 /**
  * Log file verifier checks the consistency of log files.

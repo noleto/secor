@@ -25,49 +25,49 @@ import com.twitter.ostrich.stats.Stats;
  * @author Pawel Garbacki (pawel@pinterest.com)
  */
 public class StatsUtil {
-	public static void setLabel(String name, String value) {
-		long threadId = Thread.currentThread().getId();
-		String fqName = "secor_t" + String.valueOf(threadId) + "_" + name;
-		Stats.setLabel(fqName, value);
-	}
+    public static void setLabel(String name, String value) {
+        long threadId = Thread.currentThread().getId();
+        String fqName = "secor_t" + String.valueOf(threadId) + "_" + name;
+        Stats.setLabel(fqName, value);
+    }
 
-	public static void clearLabel(TopicPartition topicPartition, String name) {
-		String underscoredName = prepareName(topicPartition, name);
-		Stats.clearLabel(underscoredName);
-	}
+    public static void clearLabel(TopicPartition topicPartition, String name) {
+        String underscoredName = prepareName(topicPartition, name);
+        Stats.clearLabel(underscoredName);
+    }
 
-	private static String prepareName(TopicPartition topicPartition, String name) {
-		long threadId = Thread.currentThread().getId();
-		String fqName = "secor_t" + String.valueOf(threadId) + "_"
-				+ topicPartition.getTopic() + "_"
-				+ String.valueOf(topicPartition.getPartition()) + "_" + name;
-		return fqName;
-	}
+    private static String prepareName(TopicPartition topicPartition, String name) {
+        long threadId = Thread.currentThread().getId();
+        String fqName = "secor_t" + String.valueOf(threadId) + "_"
+                + topicPartition.getTopic() + "_"
+                + String.valueOf(topicPartition.getPartition()) + "_" + name;
+        return fqName;
+    }
 
-	public static void incCounter(TopicPartition topicPartition, String name) {
-		String fqName = prepareName(topicPartition, name);
-		Stats.incr(fqName);
-	}
+    public static void incCounter(TopicPartition topicPartition, String name) {
+        String fqName = prepareName(topicPartition, name);
+        Stats.incr(fqName);
+    }
 
-	public static void clearCounter(TopicPartition topicPartition, String name) {
-		String fqName = prepareName(topicPartition, name);
-		Stats.removeCounter(fqName);
-	}
+    public static void clearCounter(TopicPartition topicPartition, String name) {
+        String fqName = prepareName(topicPartition, name);
+        Stats.removeCounter(fqName);
+    }
 
-	public static void setLabel(TopicPartition topicPartition, String name,
-			String value) {
-		String fqName = prepareName(topicPartition, name);
-		Stats.setLabel(fqName, value);
-	}
+    public static void setLabel(TopicPartition topicPartition, String name,
+            String value) {
+        String fqName = prepareName(topicPartition, name);
+        Stats.setLabel(fqName, value);
+    }
 
-	public static void setRawLabel(String confName, String value) {
-		Stats.setLabel(confName, value);
-	}
+    public static void setRawLabel(String confName, String value) {
+        Stats.setLabel(confName, value);
+    }
 
-	public static void clearStats(TopicPartition topicPartition) {
-		StatsUtil.clearLabel(topicPartition, "most_recently_created_file_sec");
-		StatsUtil.clearLabel(topicPartition, "aggregated_size_bytes");
-		StatsUtil.clearLabel(topicPartition, "reader_last_offset");
-		StatsUtil.clearLabel(topicPartition, "writer_last_offset");
-	}
+    public static void clearStats(TopicPartition topicPartition) {
+        StatsUtil.clearLabel(topicPartition, "most_recently_created_file_sec");
+        StatsUtil.clearLabel(topicPartition, "aggregated_size_bytes");
+        StatsUtil.clearLabel(topicPartition, "reader_last_offset");
+        StatsUtil.clearLabel(topicPartition, "writer_last_offset");
+    }
 }

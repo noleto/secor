@@ -18,7 +18,6 @@ package com.pinterest.secor.common;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -117,27 +116,28 @@ public class FileRegistry {
         return writer;
     }
 
-	/**
-	 * Delete a given path, the underlying file, and the corresponding writer.
-	 * 
-	 * @param path
-	 *            The path to delete.
-	 * @throws IOException
-	 */
-	public void deletePath(LogFilePath path) throws IOException {
-		TopicPartition topicPartition = new TopicPartition(path.getTopic(),
-				path.getKafkaPartition());
-		HashSet<LogFilePath> paths = mFiles.get(topicPartition);
-		paths.remove(path);
-		if (paths.isEmpty()) {
-			mFiles.remove(topicPartition);
-			StatsUtil.clearLabel(topicPartition, "most_recently_created_file_sec");
-			StatsUtil.clearLabel(topicPartition, "aggregated_size_bytes");
-		}
-		deleteWriter(path);
-		FileUtil.delete(path.getLogFilePath());
-		FileUtil.delete(path.getLogFileCrcPath());
-	}
+    /**
+     * Delete a given path, the underlying file, and the corresponding writer.
+     * 
+     * @param path
+     *            The path to delete.
+     * @throws IOException
+     */
+    public void deletePath(LogFilePath path) throws IOException {
+        TopicPartition topicPartition = new TopicPartition(path.getTopic(),
+                path.getKafkaPartition());
+        HashSet<LogFilePath> paths = mFiles.get(topicPartition);
+        paths.remove(path);
+        if (paths.isEmpty()) {
+            mFiles.remove(topicPartition);
+            StatsUtil.clearLabel(topicPartition,
+                    "most_recently_created_file_sec");
+            StatsUtil.clearLabel(topicPartition, "aggregated_size_bytes");
+        }
+        deleteWriter(path);
+        FileUtil.delete(path.getLogFilePath());
+        FileUtil.delete(path.getLogFileCrcPath());
+    }
 
     /**
      * Delete all paths, files, and writers in a given topic partition.
@@ -197,60 +197,60 @@ public class FileRegistry {
         }
     }
 
-	/**
-	 * Get aggregated size of all files in a given topic partition.
-	 * 
-	 * @param topicPartition
-	 *            The topic partition to get the size for.
-	 * @return Aggregated size of files in the topic partition or 0 if the topic
-	 *         partition does not contain any files.
-	 * @throws IOException
-	 */
-	public long getSize(TopicPartition topicPartition) throws IOException {
-		Collection<LogFilePath> paths = getPaths(topicPartition);
-		long result = 0;
-		for (LogFilePath path : paths) {
-			Writer writer = mWriters.get(path);
-			if (writer != null) {
-				result += writer.getLength();
-			}
-		}
-		StatsUtil.setLabel(topicPartition, "aggregated_size_bytes",
-				Long.toString(result));
-		return result;
-	}
+    /**
+     * Get aggregated size of all files in a given topic partition.
+     * 
+     * @param topicPartition
+     *            The topic partition to get the size for.
+     * @return Aggregated size of files in the topic partition or 0 if the topic
+     *         partition does not contain any files.
+     * @throws IOException
+     */
+    public long getSize(TopicPartition topicPartition) throws IOException {
+        Collection<LogFilePath> paths = getPaths(topicPartition);
+        long result = 0;
+        for (LogFilePath path : paths) {
+            Writer writer = mWriters.get(path);
+            if (writer != null) {
+                result += writer.getLength();
+            }
+        }
+        StatsUtil.setLabel(topicPartition, "aggregated_size_bytes",
+                Long.toString(result));
+        return result;
+    }
 
-	/**
-	 * Get the creation age of the most recently created file in a given topic
-	 * partition.
-	 * 
-	 * @param topicPartition
-	 *            The topic partition to get the age of.
-	 * @return Age of the most recently created file in the topic partition or
-	 *         -1 if the partition does not contain any files.
-	 * @throws IOException
-	 */
-	public long getModificationAgeSec(TopicPartition topicPartition)
-			throws IOException {
-		long now = System.currentTimeMillis() / 1000L;
-		long result = Long.MAX_VALUE;
-		Collection<LogFilePath> paths = getPaths(topicPartition);
-		for (LogFilePath path : paths) {
-			Long creationTime = mCreationTimes.get(path);
-			if (creationTime == null) {
-				LOG.warn("no creation time found for path " + path);
-				creationTime = now;
-			}
-			long age = now - creationTime;
-			if (age < result) {
-				result = age;
-			}
-		}
-		if (result == Long.MAX_VALUE) {
-			result = -1;
-		}
-		StatsUtil.setLabel(topicPartition, "most_recently_created_file_sec",
-				Long.toString(result));
-		return result;
-	}
+    /**
+     * Get the creation age of the most recently created file in a given topic
+     * partition.
+     * 
+     * @param topicPartition
+     *            The topic partition to get the age of.
+     * @return Age of the most recently created file in the topic partition or
+     *         -1 if the partition does not contain any files.
+     * @throws IOException
+     */
+    public long getModificationAgeSec(TopicPartition topicPartition)
+            throws IOException {
+        long now = System.currentTimeMillis() / 1000L;
+        long result = Long.MAX_VALUE;
+        Collection<LogFilePath> paths = getPaths(topicPartition);
+        for (LogFilePath path : paths) {
+            Long creationTime = mCreationTimes.get(path);
+            if (creationTime == null) {
+                LOG.warn("no creation time found for path " + path);
+                creationTime = now;
+            }
+            long age = now - creationTime;
+            if (age < result) {
+                result = age;
+            }
+        }
+        if (result == Long.MAX_VALUE) {
+            result = -1;
+        }
+        StatsUtil.setLabel(topicPartition, "most_recently_created_file_sec",
+                Long.toString(result));
+        return result;
+    }
 }

@@ -16,7 +16,8 @@
  */
 package com.pinterest.secor.tools;
 
-import com.pinterest.secor.util.FileUtil;
+import java.io.IOException;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -24,7 +25,7 @@ import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
 
-import java.io.IOException;
+import com.pinterest.secor.util.FileUtil;
 
 /**
  * Log file printer displays the content of a log file.

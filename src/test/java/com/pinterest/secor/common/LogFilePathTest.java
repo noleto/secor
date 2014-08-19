@@ -16,10 +16,11 @@
  */
 package com.pinterest.secor.common;
 
-import com.pinterest.secor.message.ParsedMessage;
+import java.util.Arrays;
+
 import junit.framework.TestCase;
 
-import java.util.Arrays;
+import com.pinterest.secor.message.ParsedMessage;
 
 /**
  * LogFileTest tests the logic operating on lof file paths.

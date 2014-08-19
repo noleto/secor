@@ -16,11 +16,12 @@
  */
 package com.pinterest.secor.common;
 
-import com.pinterest.secor.message.ParsedMessage;
-import org.apache.commons.lang.StringUtils;
-
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.pinterest.secor.message.ParsedMessage;
 
 /**
  * LogFilePath represents path of a log file. It contains convenience method for

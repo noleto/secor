@@ -16,9 +16,14 @@
  */
 package com.pinterest.secor.common;
 
-import com.google.common.net.HostAndPort;
-import com.pinterest.secor.message.Message;
-import kafka.api.*;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import kafka.api.FetchRequestBuilder;
+import kafka.api.PartitionOffsetRequestInfo;
 import kafka.common.TopicAndPartition;
 import kafka.javaapi.FetchResponse;
 import kafka.javaapi.OffsetRequest;
@@ -29,15 +34,13 @@ import kafka.javaapi.TopicMetadataRequest;
 import kafka.javaapi.TopicMetadataResponse;
 import kafka.javaapi.consumer.SimpleConsumer;
 import kafka.message.MessageAndOffset;
+
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.google.common.net.HostAndPort;
+import com.pinterest.secor.message.Message;
 
 /**
  * Kafka client encapsulates the logic interacting with Kafka brokers.

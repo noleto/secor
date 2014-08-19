@@ -16,14 +16,15 @@
  */
 package com.pinterest.secor.tools;
 
-import com.pinterest.secor.common.SecorConfig;
-import com.pinterest.secor.util.FileUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.pinterest.secor.common.SecorConfig;
+import com.pinterest.secor.util.FileUtil;
 
 /**
  * Log file deleter removes message old log files stored locally.

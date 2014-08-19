@@ -98,8 +98,7 @@ public class MessageReader {
             topicPartitions.append(topicPartition.getTopic() + '/'
                     + topicPartition.getPartition());
         }
-        StatsUtil
-                .setLabel("topic_partitions", topicPartitions.toString());
+        StatsUtil.setLabel("topic_partitions", topicPartitions.toString());
     }
 
     private ConsumerConfig createConsumerConfig() throws UnknownHostException {

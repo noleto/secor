@@ -130,9 +130,7 @@ public class FileRegistry {
         paths.remove(path);
         if (paths.isEmpty()) {
             mFiles.remove(topicPartition);
-            StatsUtil.clearLabel(topicPartition,
-                    "most_recently_created_file_sec");
-            StatsUtil.clearLabel(topicPartition, "aggregated_size_bytes");
+            StatsUtil.clearStats(topicPartition);
         }
         deleteWriter(path);
         FileUtil.delete(path.getLogFilePath());
